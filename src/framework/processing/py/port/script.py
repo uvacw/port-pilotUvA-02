@@ -16,6 +16,13 @@ from ddpinspect.validate import Language
 from ddpinspect.validate import DDPFiletype
 
 from datetime import datetime
+def fix_timestamp(timestamp):
+    try:
+        return str(datetime.utcfromtimestamp(timestamp))
+    except Exception as e:
+        return str(e)
+
+
 
 LOG_STREAM = io.StringIO()
 
@@ -177,7 +184,13 @@ TABLE_TITLES = {
             "en": "Liked posts on Instagram:",
             "nl": "Liked posts op Instagram:",
         }
-    ),        
+    ), 
+    "instagram_story_likes": props.Translatable(
+        {
+            "en": "Liked stories on Instagram:",
+            "nl": "Liked stories op Instagram:",
+        }
+    ), 
     "facebook_your_topics": props.Translatable(
         {
             "en": "Topics in which you are interested in according to Facebook:",
@@ -196,6 +209,24 @@ TABLE_TITLES = {
             "nl": "Datum waarop je account is aangemaakt op Facebook:",
         }
     ),
+    "facebook_recently_viewed": props.Translatable(
+        {
+            "en": "Items recently viewed on Facebook:",
+            "nl": "Items recently viewed on Facebook:",
+        }
+    ),
+    "facebook_recently_visited": props.Translatable(
+        {
+            "en": "Items recently visited on Facebook:",
+            "nl": "Items recently visited on Facebook:",
+        }
+    ),
+    "facebook_posts_and_comments": props.Translatable(
+        {
+            "en": "Reactions to posts and comments on Facebook:",
+            "nl": "Reactions to posts and comments on Facebook:",
+        }
+    ),    
     "youtube_watch_history": props.Translatable(
         {
             "en": "Videos you watched on YouTube:",
@@ -231,7 +262,8 @@ def process(sessionId):
         ("Twitter", extract_twitter),
         ("Instagram", extract_instagram),
         ("Facebook", extract_facebook),
-        ("YouTube", extract_youtube),
+        # ("TikTok", extract_tiktok),        
+        # ("YouTube", extract_youtube),
     ]
 
     # progress in %
@@ -428,49 +460,51 @@ def extract_twitter(twitter_zip):
         result["adengagement"] = {"data": df, "title": TABLE_TITLES["twitter_adengagement"]}
 
 
-    tweets_bytes = unzipddp.extract_file_from_zip(twitter_zip, "tweet.js")
-    tweets_listdict = twitter.bytesio_to_listdict(tweets_bytes)
-    tweets = []
-    for item in tweets_listdict:
-        res = {}
-        try: res['in_reply_to_user_id'] = str(item['tweet']['in_reply_to_user_id'])
-        except: 
-            pass
-        try: res['in_reply_to_screen_name'] = str(item['tweet']['in_reply_to_screen_name'])
-        except: 
-            pass
-        try: res['full_text'] = str(item['tweet']['full_text'])
-        except: 
-            pass
-        try: res['full_text'] = str(item['tweet']['full_text'])
-        except: 
-            pass
-        try: res['retweet_count'] = str(item['tweet']['retweet_count'])
-        except: 
-            pass
-        try: res['favorite_count'] = str(item['tweet']['favorite_count'])
-        except: 
-            pass
-        try: res['urls'] = str(item['tweet']['entities']['urls'])
-        except: 
-            pass
+    ## AGGREGATE --> one table for user mentions (user --> # of mentions) one table for user replies (user --> # of replies)
+
+    # tweets_bytes = unzipddp.extract_file_from_zip(twitter_zip, "tweet.js")
+    # tweets_listdict = twitter.bytesio_to_listdict(tweets_bytes)
+    # tweets = []
+    # for item in tweets_listdict:
+    #     res = {}
+    #     try: res['in_reply_to_user_id'] = str(item['tweet']['in_reply_to_user_id'])
+    #     except: 
+    #         pass
+    #     try: res['in_reply_to_screen_name'] = str(item['tweet']['in_reply_to_screen_name'])
+    #     except: 
+    #         pass
+    #     try: res['full_text'] = str(item['tweet']['full_text'])
+    #     except: 
+    #         pass
+    #     try: res['full_text'] = str(item['tweet']['full_text'])
+    #     except: 
+    #         pass
+    #     try: res['retweet_count'] = str(item['tweet']['retweet_count'])
+    #     except: 
+    #         pass
+    #     try: res['favorite_count'] = str(item['tweet']['favorite_count'])
+    #     except: 
+    #         pass
+    #     try: res['urls'] = str(item['tweet']['entities']['urls'])
+    #     except: 
+    #         pass
 
 
-        tweets.append(res)
+    #     tweets.append(res)
 
 
-    if tweets:
-        df = pd.DataFrame(tweets)
-        result["tweets"] = {"data": df, "title": TABLE_TITLES["twitter_tweets"]}
+    # if tweets:
+    #     df = pd.DataFrame(tweets)
+    #     result["tweets"] = {"data": df, "title": TABLE_TITLES["twitter_tweets"]}
 
 
-    userlinkclicks_bytes = unzipddp.extract_file_from_zip(twitter_zip, "user-link-clicks.js")
-    userlinkclicks_listdict = twitter.bytesio_to_listdict(userlinkclicks_bytes)
-    userlinkclicks = [{'res': str(userlinkclicks_listdict)},]
+    # userlinkclicks_bytes = unzipddp.extract_file_from_zip(twitter_zip, "user-link-clicks.js")
+    # userlinkclicks_listdict = twitter.bytesio_to_listdict(userlinkclicks_bytes)
+    # userlinkclicks = [{'res': str(userlinkclicks_listdict)},]
 
-    if userlinkclicks:
-        df = pd.DataFrame(userlinkclicks)
-        result["userlinkclicks"] = {"data": df, "title": TABLE_TITLES["twitter_userlinkclicks"]}
+    # if userlinkclicks:
+    #     df = pd.DataFrame(userlinkclicks)
+    #     result["userlinkclicks"] = {"data": df, "title": TABLE_TITLES["twitter_userlinkclicks"]}
 
 
 
@@ -505,8 +539,6 @@ def extract_instagram(instagram_zip):
 
     ads_viewed_bytes = unzipddp.extract_file_from_zip(instagram_zip, "ads_viewed.json")
     ads_viewed_dict = unzipddp.read_json_from_bytes(ads_viewed_bytes)
-    # ads_viewed = [{'res': str(ads_viewed_dict)},]
-
 
     ads_viewed = [{'Author': item['string_map_data']['Author']['value'],
                     'Timestamp' : item['string_map_data']['Time']['timestamp']}
@@ -516,39 +548,40 @@ def extract_instagram(instagram_zip):
     
     if ads_viewed:
         df = pd.DataFrame(ads_viewed)
-        result["ads_viewed"] = {"data": df, "title": TABLE_TITLES["instagram_interests"]}
+        df_agg = pd.DataFrame(df['Author'].value_counts()).reset_index().rename(columns={'index': 'Author', 'Author': 'Number of views'})
+        df_timestamps_min = df[['Author', 'Timestamp']].sort_values(by='Timestamp', ascending=True).drop_duplicates(subset=['Author']).rename(columns={'Timestamp': 'Earliest view'})
+        df_timestamps_max = df[['Author', 'Timestamp']].sort_values(by='Timestamp', ascending=False).drop_duplicates(subset=['Author']).rename(columns={'Timestamp': 'Latest view'})
+        df_agg = df_agg.merge(df_timestamps_min, how='left', on='Author')
+        df_agg = df_agg.merge(df_timestamps_max, how='left', on='Author')
 
-    ads_viewed_bytes = unzipddp.extract_file_from_zip(instagram_zip, "ads_viewed.json")
-    ads_viewed_dict = unzipddp.read_json_from_bytes(ads_viewed_bytes)
-    # ads_viewed = [{'res': str(ads_viewed_dict)},]
+        df_agg['Earliest view'] = df_agg['Earliest view'].apply(fix_timestamp)
+        df_agg['Latest view'] = df_agg['Latest view'].apply(fix_timestamp)
 
+        result["ads_viewed"] = {"data": df_agg, "title": TABLE_TITLES["instagram_ads_viewed"]}
 
-    ads_viewed = [{'Author': item['string_map_data']['Author']['value'],
-                    'Timestamp' : datetime.utcfromtimestamp(item['string_map_data']['Time']['timestamp']/1000.0),
-                    'Time': item['string_map_data']['Time']['value']}
-                    for item in ads_viewed_dict['impressions_history_ads_seen']
-        ]
-    
-    
-    if ads_viewed:
-        df = pd.DataFrame(ads_viewed)
-        result["ads_viewed"] = {"data": df, "title": TABLE_TITLES["instagram_ads_viewed"]}
 
     posts_viewed_bytes = unzipddp.extract_file_from_zip(instagram_zip, "posts_viewed.json")
     posts_viewed_dict = unzipddp.read_json_from_bytes(posts_viewed_bytes)
-    # posts_viewed = [{'res': str(posts_viewed_dict)},]
-
 
     posts_viewed = [{'Author': item['string_map_data']['Author']['value'],
-                    'Timestamp' : datetime.utcfromtimestamp(item['string_map_data']['Time']['timestamp']/1000.0),
-                    'Time': item['string_map_data']['Time']['value']}
+                    'Timestamp' : item['string_map_data']['Time']['timestamp']
+                    }
                     for item in posts_viewed_dict['impressions_history_posts_seen']
         ]
     
     
     if posts_viewed:
         df = pd.DataFrame(posts_viewed)
-        result["posts_viewed"] = {"data": df, "title": TABLE_TITLES["instagram_posts_viewed"]}
+        df_agg = pd.DataFrame(df['Author'].value_counts()).reset_index().rename(columns={'index': 'Author', 'Author': 'Number of views'})
+        df_timestamps_min = df[['Author', 'Timestamp']].sort_values(by='Timestamp', ascending=True).drop_duplicates(subset=['Author']).rename(columns={'Timestamp': 'Earliest view'})
+        df_timestamps_max = df[['Author', 'Timestamp']].sort_values(by='Timestamp', ascending=False).drop_duplicates(subset=['Author']).rename(columns={'Timestamp': 'Latest view'})
+        df_agg = df_agg.merge(df_timestamps_min, how='left', on='Author')
+        df_agg = df_agg.merge(df_timestamps_max, how='left', on='Author')
+
+        df_agg['Earliest view'] = df_agg['Earliest view'].apply(fix_timestamp)
+        df_agg['Latest view'] = df_agg['Latest view'].apply(fix_timestamp)
+
+        result["posts_viewed"] = {"data": df_agg, "title": TABLE_TITLES["instagram_posts_viewed"]}
 
     
     videos_watched_bytes = unzipddp.extract_file_from_zip(instagram_zip, "videos_watched.json")
@@ -557,32 +590,51 @@ def extract_instagram(instagram_zip):
 
 
     videos_watched = [{'Author': item['string_map_data']['Author']['value'],
-                    'Timestamp' : datetime.utcfromtimestamp(item['string_map_data']['Time']['timestamp']/1000.0),
+                    'Timestamp' : item['string_map_data']['Time']['timestamp'],
                     'Time': item['string_map_data']['Time']['value']}
                     for item in videos_watched_dict['impressions_history_videos_watched']
         ]
-    
-    
+
+
     if videos_watched:
         df = pd.DataFrame(videos_watched)
-        result["videos_watched"] = {"data": df, "title": TABLE_TITLES["instagram_videos_watched"]}
+        df_agg = pd.DataFrame(df['Author'].value_counts()).reset_index().rename(columns={'index': 'Author', 'Author': 'Number of videos watched'})
+        df_timestamps_min = df[['Author', 'Timestamp']].sort_values(by='Timestamp', ascending=True).drop_duplicates(subset=['Author']).rename(columns={'Timestamp': 'Earliest video'})
+        df_timestamps_max = df[['Author', 'Timestamp']].sort_values(by='Timestamp', ascending=False).drop_duplicates(subset=['Author']).rename(columns={'Timestamp': 'Latest video'})
+        df_agg = df_agg.merge(df_timestamps_min, how='left', on='Author')
+        df_agg = df_agg.merge(df_timestamps_max, how='left', on='Author')
 
-    
+        df_agg['Earliest video'] = df_agg['Earliest video'].apply(fix_timestamp)
+        df_agg['Latest video'] = df_agg['Latest video'].apply(fix_timestamp)
+
+        result["videos_watched"] = {"data": df_agg, "title": TABLE_TITLES["instagram_videos_watched"]}
+
+
     post_comments_bytes = unzipddp.extract_file_from_zip(instagram_zip, "post_comments.json")
     post_comments_dict = unzipddp.read_json_from_bytes(post_comments_bytes)
     # post_comments = [{'res': str(post_comments_dict)},]
 
 
     post_comments = [{'Media owner': item['string_map_data']['Media owner']['value'],
-                    'Timestamp' : datetime.utcfromtimestamp(item['string_map_data']['Comment creation time']['timestamp']/1000.0),
-                    'Time': item['string_map_data']['Comment creation time']['value'],
-                    'Comment': item['string_map_data']['Comment']['value'],
+                    'Timestamp' : item['string_map_data']['Comment creation time']['timestamp'],
+                    # 'Time': item['string_map_data']['Comment creation time']['value'],
+                    # 'Comment': item['string_map_data']['Comment']['value'],
                     }
                     for item in post_comments_dict['comments_media_comments']]
     
     if post_comments:
         df = pd.DataFrame(post_comments)
-        result["post_comments"] = {"data": df, "title": TABLE_TITLES["instagram_post_comments"]}
+        df_agg = pd.DataFrame(df['Media owner'].value_counts()).reset_index().rename(columns={'index': 'Media owner', 'Media owner': 'Number of comments'})
+        df_timestamps_min = df[['Media owner', 'Timestamp']].sort_values(by='Timestamp', ascending=True).drop_duplicates(subset=['Media owner']).rename(columns={'Timestamp': 'Earliest comment'})
+        df_timestamps_max = df[['Media owner', 'Timestamp']].sort_values(by='Timestamp', ascending=False).drop_duplicates(subset=['Media owner']).rename(columns={'Timestamp': 'Latest comment'})
+        df_agg = df_agg.merge(df_timestamps_min, how='left', on='Media owner')
+        df_agg = df_agg.merge(df_timestamps_max, how='left', on='Media owner')
+
+        df_agg['Earliest comment'] = df_agg['Earliest comment'].apply(fix_timestamp)
+        df_agg['Latest comment'] = df_agg['Latest comment'].apply(fix_timestamp)
+
+
+        result["post_comments"] = {"data": df_agg, "title": TABLE_TITLES["instagram_post_comments"]}
 
 
     try:
@@ -592,18 +644,26 @@ def extract_instagram(instagram_zip):
 
 
         reels_comments = [{'Media owner': item['string_map_data']['Media owner']['value'],
-                        'Timestamp' : datetime.utcfromtimestamp(item['string_map_data']['Comment creation time']['timestamp']/1000.0),
-                        'Time': item['string_map_data']['Comment creation time']['value'],
-                        'Comment': item['string_map_data']['Comment']['value'],
+                        'Timestamp' : item['string_map_data']['Comment creation time']['timestamp'],
                         }
                         for item in reels_comments_dict['comments_reels_comments']]
-    
+   
     except:
         reels_comments = None
 
 
     if reels_comments:
         df = pd.DataFrame(reels_comments)
+        df_agg = pd.DataFrame(df['Media owner'].value_counts()).reset_index().rename(columns={'index': 'Media owner', 'Media owner': 'Number of comments'})
+        df_timestamps_min = df[['Media owner', 'Timestamp']].sort_values(by='Timestamp', ascending=True).drop_duplicates(subset=['Media owner']).rename(columns={'Timestamp': 'Earliest comment'})
+        df_timestamps_max = df[['Media owner', 'Timestamp']].sort_values(by='Timestamp', ascending=False).drop_duplicates(subset=['Media owner']).rename(columns={'Timestamp': 'Latest comment'})
+        df_agg = df_agg.merge(df_timestamps_min, how='left', on='Media owner')
+        df_agg = df_agg.merge(df_timestamps_max, how='left', on='Media owner')
+
+        df_agg['Earliest comment'] = df_agg['Earliest comment'].apply(fix_timestamp)
+        df_agg['Latest comment'] = df_agg['Latest comment'].apply(fix_timestamp)
+
+
         result["reels_comments"] = {"data": df, "title": TABLE_TITLES["instagram_reels_comments"]}
 
     following_bytes = unzipddp.extract_file_from_zip(instagram_zip, "following.json")
@@ -611,7 +671,7 @@ def extract_instagram(instagram_zip):
     # following = [{'res': str(following_dict)},]
 
 
-    following = [{'href': item['string_list_data'][0]['href'],
+    following = [{
                     'value': item['string_list_data'][0]['value'],
                     'timestamp': item['string_list_data'][0]['timestamp'],
 
@@ -623,37 +683,83 @@ def extract_instagram(instagram_zip):
         result["following"] = {"data": df, "title": TABLE_TITLES["instagram_following"]}
 
 
-    liked_comments_bytes = unzipddp.extract_file_from_zip(instagram_zip, "liked_comments.json")
-    liked_comments_dict = unzipddp.read_json_from_bytes(liked_comments_bytes)
-    # liked_comments = [{'res': str(liked_comments_dict)},]
+    # liked_comments_bytes = unzipddp.extract_file_from_zip(instagram_zip, "liked_comments.json")
+    # liked_comments_dict = unzipddp.read_json_from_bytes(liked_comments_bytes)
+    # # liked_comments = [{'res': str(liked_comments_dict)},]
 
 
-    liked_comments = [{'href': item['string_list_data'][0]['href'],
-                    'title': item['title'],
-                    'timestamp': item['string_list_data'][0]['timestamp'],
+    # liked_comments = [{'href': item['string_list_data'][0]['href'],
+    #                 'title': item['title'],
+    #                 'timestamp': item['string_list_data'][0]['timestamp'],
 
-                    }
-                    for item in liked_comments_dict['likes_comment_likes']]
+    #                 }
+    #                 for item in liked_comments_dict['likes_comment_likes']]
     
-    if liked_comments:
-        df = pd.DataFrame(liked_comments)
-        result["liked_comments"] = {"data": df, "title": TABLE_TITLES["instagram_liked_comments"]}
+    # if liked_comments:
+    #     df = pd.DataFrame(liked_comments)
+    #     result["liked_comments"] = {"data": df, "title": TABLE_TITLES["instagram_liked_comments"]}
+
+    ## AGGREGATE
 
     liked_posts_bytes = unzipddp.extract_file_from_zip(instagram_zip, "liked_posts.json")
     liked_posts_dict = unzipddp.read_json_from_bytes(liked_posts_bytes)
     # liked_posts = [{'res': str(liked_posts_dict)},]
 
 
-    liked_posts = [{'href': item['string_list_data'][0]['href'],
+    liked_posts = [{
+                    # 'href': item['string_list_data'][0]['href'],
                     'title': item['title'],
-                    'timestamp': item['string_list_data'][0]['timestamp'],
+                    'Timestamp': item['string_list_data'][0]['timestamp'],
 
                     }
                     for item in liked_posts_dict['likes_media_likes']]
     
     if liked_posts:
         df = pd.DataFrame(liked_posts)
-        result["liked_posts"] = {"data": df, "title": TABLE_TITLES["instagram_liked_posts"]}
+
+        df_agg = pd.DataFrame(df['title'].value_counts()).reset_index().rename(columns={'index': 'title', 'title': 'Number of posts'})
+        df_timestamps_min = df[['title', 'Timestamp']].sort_values(by='Timestamp', ascending=True).drop_duplicates(subset=['title']).rename(columns={'Timestamp': 'Earliest like'})
+        df_timestamps_max = df[['title', 'Timestamp']].sort_values(by='Timestamp', ascending=False).drop_duplicates(subset=['title']).rename(columns={'Timestamp': 'Latest like'})
+        df_agg = df_agg.merge(df_timestamps_min, how='left', on='title')
+        df_agg = df_agg.merge(df_timestamps_max, how='left', on='title')
+
+        df_agg['Earliest like'] = df_agg['Earliest like'].apply(fix_timestamp)
+        df_agg['Latest like'] = df_agg['Latest like'].apply(fix_timestamp)
+
+        result["liked_posts"] = {"data": df_agg, "title": TABLE_TITLES["instagram_liked_posts"]}
+
+
+
+    try:
+        story_likes_bytes = unzipddp.extract_file_from_zip(instagram_zip, "story_likes.json")
+        story_likes_dict = unzipddp.read_json_from_bytes(story_likes_bytes)
+        # liked_posts = [{'res': str(liked_posts_dict)},]
+
+
+        story_likes = [{
+                        # 'href': item['string_list_data'][0]['href'],
+                        'title': item['title'],
+                        'Timestamp': item['string_list_data'][0]['timestamp'],
+
+                        }
+                        for item in story_likes_dict['story_activities_story_likes']]
+    except:
+        story_likes = None
+    
+    if story_likes:
+        df = pd.DataFrame(story_likes)
+
+        df_agg = pd.DataFrame(df['title'].value_counts()).reset_index().rename(columns={'index': 'title', 'title': 'Number of stories'})
+        df_timestamps_min = df[['title', 'Timestamp']].sort_values(by='Timestamp', ascending=True).drop_duplicates(subset=['title']).rename(columns={'Timestamp': 'Earliest like'})
+        df_timestamps_max = df[['title', 'Timestamp']].sort_values(by='Timestamp', ascending=False).drop_duplicates(subset=['title']).rename(columns={'Timestamp': 'Latest like'})
+        df_agg = df_agg.merge(df_timestamps_min, how='left', on='title')
+        df_agg = df_agg.merge(df_timestamps_max, how='left', on='title')
+
+        df_agg['Earliest like'] = df_agg['Earliest like'].apply(fix_timestamp)
+        df_agg['Latest like'] = df_agg['Latest like'].apply(fix_timestamp)
+
+        result["liked_posts"] = {"data": df_agg, "title": TABLE_TITLES["instagram_story_likes"]}
+
 
 
 
@@ -665,71 +771,150 @@ def extract_facebook(facebook_zip):
 
     validation = facebook.validate_zip(facebook_zip)
 
-    interests_bytes = unzipddp.extract_file_from_zip(facebook_zip, "ads_interests.json")
-    interests_dict = unzipddp.read_json_from_bytes(interests_bytes)
-    interests = facebook.interests_to_list(interests_dict)
-    if interests:
-        df = pd.DataFrame(interests, columns=["Interests"])
-        result["interests"] = {"data": df, "title": TABLE_TITLES["facebook_interests"]}
+    # recently_visited_bytes = unzipddp.extract_file_from_zip(facebook_zip, "recently_visited.json")
+    # recently_visited_dict = unzipddp.read_json_from_bytes(recently_visited_bytes)
+    # recently_visited = []
 
-    your_topics_bytes = unzipddp.extract_file_from_zip(facebook_zip, "your_topics.json")
-    your_topics_dict = unzipddp.read_json_from_bytes(your_topics_bytes)
-    your_topics = facebook.your_topics_to_list(your_topics_dict)
-    if your_topics:
-        df = pd.DataFrame(your_topics, columns=["Your Topics"])
-        result["your_topics"] = {"data": df, "title": TABLE_TITLES["facebook_your_topics"]}
+    # for category in recently_visited_dict['visited_things_v2']:
+    #     for item in category['entries']:
+    #         if 'data' in item.keys():
+    #             if 'name' in item['data'].keys():
+    #                 # if 'name' in []: ### LIST OF NEEDED CATEGORIES
+    #                 recently_visited.append({'category': category['name'],
+    #                                         'item': item['data']['name'],
+    #                                         'uri': item['data']['uri'],
+    #                                         'timestamp': item['timestamp']
+    #                                     })
 
-    account_created_at_bytes = unzipddp.extract_file_from_zip(facebook_zip, "profile_information.json")
-    account_created_at_dict = unzipddp.read_json_from_bytes(account_created_at_bytes)
-    account_created_at = facebook.account_created_at_to_list(account_created_at_dict)
-    if account_created_at:
-        df = pd.DataFrame(account_created_at, columns=["Account created at"])
-        result["account_created_at"] = {"data": df, "title": TABLE_TITLES["facebook_account_created_at"]}
+    # if len(recently_visited) == 0:
+    #     recently_visited = None
+
+    # if recently_visited:
+    #     df = pd.DataFrame(recently_visited)
+    #     df['timestamp'] = df['timestamp'].apply(fix_timestamp)
+    #     result["recently_visited"] = {"data": df, "title": TABLE_TITLES["facebook_recently_visited"]}
+
+    recently_viewed_bytes = unzipddp.extract_file_from_zip(facebook_zip, "recently_viewed.json")
+    recently_viewed_dict = unzipddp.read_json_from_bytes(recently_viewed_bytes)
+    # recently_viewed = [{'res': str(recently_viewed_dict)}]
+    recently_viewed = []
+
+    for category in recently_viewed_dict['recently_viewed']:
+        if 'children' in category.keys():
+            items = category['children']
+        if 'entries' in category.keys():
+            items = category['entries']
+        for item in items:
+            if 'data' in item.keys():
+                if 'name' in item['data'].keys():
+                    # if 'name' in []: ### LIST OF NEEDED CATEGORIES
+                    recently_viewed.append({'category': category['name'],
+                                            'item': item['data']['name'],
+                                            'uri': item['data']['uri'],
+                                            'timestamp': item['timestamp']
+                                        })
+
+    if len(recently_viewed) == 0:
+        recently_viewed = None
+
+    if recently_viewed:
+        df = pd.DataFrame(recently_viewed)
+        df['timestamp'] = df['timestamp'].apply(fix_timestamp)
+        result["recently_viewed"] = {"data": df, "title": TABLE_TITLES["facebook_recently_viewed"]}
+
+    posts_and_comments_bytes = unzipddp.extract_file_from_zip(facebook_zip, "posts_and_comments.json")
+    posts_and_comments_dict = unzipddp.read_json_from_bytes(posts_and_comments_bytes)
+    posts_and_comments = [{'res': str(posts_and_comments_dict)}]
+    posts_and_comments = []
+
+    for item in posts_and_comments_dict['reactions_v2']:
+        if 'data' in item.keys():
+            posts_and_comments.append({'reaction': item['data'][0]['reaction']['reaction'],
+                                    'title': item['title'],
+                                    'timestamp': item['timestamp']
+                                    })
+
+    if len(posts_and_comments) == 0:
+        posts_and_comments = None
+
+    if posts_and_comments:
+        df = pd.DataFrame(posts_and_comments)
+        df['timestamp'] = df['timestamp'].apply(fix_timestamp)
+        result["posts_and_comments"] = {"data": df, "title": TABLE_TITLES["facebook_posts_and_comments"]}
 
     return validation, result
 
 
-def extract_youtube(youtube_zip):
+def extract_tiktok(tiktok_zip):
     result = {}
 
-    validation = youtube.validate_zip(youtube_zip)
-    if validation.ddp_category is not None:
-        if validation.ddp_category.language == Language.EN:
-            subscriptions_fn = "subscriptions.csv"
-            watch_history_fn = "watch-history"
-            comments_fn = "my-comments.html"
-        else:
-            subscriptions_fn = "abonnementen.csv"
-            watch_history_fn = "kijkgeschiedenis"
-            comments_fn = "mijn-reacties.html"
+    # validation = facebook.validate_zip(facebook_zip) ## need validation
+    validation = True
 
-        # Get subscriptions
-        subscriptions_bytes = unzipddp.extract_file_from_zip( youtube_zip, subscriptions_fn)
-        subscriptions_listdict = unzipddp.read_csv_from_bytes(subscriptions_bytes)
-        df = youtube.to_df(subscriptions_listdict)
-        if not df.empty:
-            result["subscriptions"] = {"data": df, "title": TABLE_TITLES["youtube_subscriptions"]}
-        
-        # Get watch history
-        if validation.ddp_category.ddp_filetype == DDPFiletype.JSON:
-            watch_history_fn = watch_history_fn + ".json"
-            watch_history_bytes = unzipddp.extract_file_from_zip(youtube_zip, watch_history_fn)
-            watch_history_listdict = unzipddp.read_json_from_bytes(watch_history_bytes)
-            df = youtube.to_df(watch_history_listdict)
-        if validation.ddp_category.ddp_filetype == DDPFiletype.HTML:
-            watch_history_fn = watch_history_fn + ".html"
-            watch_history_bytes = unzipddp.extract_file_from_zip(youtube_zip, watch_history_fn)
-            df = youtube.watch_history_html_to_df(watch_history_bytes)
-        if not df.empty:
-            result["watch_history"] = {"data": df, "title": TABLE_TITLES["youtube_watch_history"]}
+    videos_source_bytes = unzipddp.extract_file_from_zip(tiktok_zip, "user_data.json")
+    videos_source_dict = unzipddp.read_json_from_bytes(videos_source_bytes)
+    videos_source = [{'res': str(videos_source_dict)}]
+    # posts_and_comments = []
 
-        # Get comments
-        comments_bytes = unzipddp.extract_file_from_zip(youtube_zip, comments_fn)
-        df = youtube.comments_to_df(comments_bytes)
-        if not df.empty:
-            result["comments"] = { "data": df, "title": TABLE_TITLES["youtube_comments"]}
+    # for item in posts_and_comments_dict['reactions_v2']:
+    #     if 'data' in item.keys():
+    #         posts_and_comments.append({'reaction': item['data'][0]['reaction']['reaction'],
+    #                                 'title': item['title'],
+    #                                 'timestamp': item['timestamp']
+    #                                 })
+
+    if len(videos_source) == 0:
+        videos_source = None
+
+    if videos_source:
+        df = pd.DataFrame(videos_source)
+        # df['timestamp'] = df['timestamp'].apply(fix_timestamp)
+        result["videos_source"] = {"data": df, "title": TABLE_TITLES["facebook_posts_and_comments"]}
 
     return validation, result
+
+
+# def extract_youtube(youtube_zip):
+#     result = {}
+
+#     validation = youtube.validate_zip(youtube_zip)
+#     if validation.ddp_category is not None:
+#         if validation.ddp_category.language == Language.EN:
+#             subscriptions_fn = "subscriptions.csv"
+#             watch_history_fn = "watch-history"
+#             comments_fn = "my-comments.html"
+#         else:
+#             subscriptions_fn = "abonnementen.csv"
+#             watch_history_fn = "kijkgeschiedenis"
+#             comments_fn = "mijn-reacties.html"
+
+#         # Get subscriptions
+#         subscriptions_bytes = unzipddp.extract_file_from_zip( youtube_zip, subscriptions_fn)
+#         subscriptions_listdict = unzipddp.read_csv_from_bytes(subscriptions_bytes)
+#         df = youtube.to_df(subscriptions_listdict)
+#         if not df.empty:
+#             result["subscriptions"] = {"data": df, "title": TABLE_TITLES["youtube_subscriptions"]}
+        
+#         # Get watch history
+#         if validation.ddp_category.ddp_filetype == DDPFiletype.JSON:
+#             watch_history_fn = watch_history_fn + ".json"
+#             watch_history_bytes = unzipddp.extract_file_from_zip(youtube_zip, watch_history_fn)
+#             watch_history_listdict = unzipddp.read_json_from_bytes(watch_history_bytes)
+#             df = youtube.to_df(watch_history_listdict)
+#         if validation.ddp_category.ddp_filetype == DDPFiletype.HTML:
+#             watch_history_fn = watch_history_fn + ".html"
+#             watch_history_bytes = unzipddp.extract_file_from_zip(youtube_zip, watch_history_fn)
+#             df = youtube.watch_history_html_to_df(watch_history_bytes)
+#         if not df.empty:
+#             result["watch_history"] = {"data": df, "title": TABLE_TITLES["youtube_watch_history"]}
+
+#         # Get comments
+#         comments_bytes = unzipddp.extract_file_from_zip(youtube_zip, comments_fn)
+#         df = youtube.comments_to_df(comments_bytes)
+#         if not df.empty:
+#             result["comments"] = { "data": df, "title": TABLE_TITLES["youtube_comments"]}
+
+#     return validation, result
 
 
 ##########################################
