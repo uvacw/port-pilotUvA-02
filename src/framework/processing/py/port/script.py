@@ -12,6 +12,9 @@ from ddpinspect import twitter
 from ddpinspect import instagram
 from ddpinspect import youtube
 from ddpinspect import facebook
+from ddpinspect import tiktok
+from ddpinspect import scanfiles
+
 from ddpinspect.validate import Language
 from ddpinspect.validate import DDPFiletype
 
@@ -245,6 +248,12 @@ TABLE_TITLES = {
             "nl": "Reacties die je hebt geplaats op Youtube:",
         }
     ),
+    "tiktok_data": props.Translatable(
+        {
+            "en": "AANPASSEN: Your data on TikTok",
+            "nl": "AANPASSEN: Jouw data op TikTok",
+        }
+    ),
     "empty_result_set": props.Translatable(
         {
             "en": "We could not extract any data:",
@@ -262,7 +271,7 @@ def process(sessionId):
         ("Twitter", extract_twitter),
         ("Instagram", extract_instagram),
         ("Facebook", extract_facebook),
-        # ("TikTok", extract_tiktok),        
+        ("TikTok", extract_tiktok),        
         # ("YouTube", extract_youtube),
     ]
 
@@ -848,12 +857,17 @@ def extract_facebook(facebook_zip):
 def extract_tiktok(tiktok_zip):
     result = {}
 
-    # validation = facebook.validate_zip(facebook_zip) ## need validation
-    validation = True
+    validation = tiktok.validate_zip(tiktok_zip) ## need validation
 
     videos_source_bytes = unzipddp.extract_file_from_zip(tiktok_zip, "user_data.json")
     videos_source_dict = unzipddp.read_json_from_bytes(videos_source_bytes)
-    videos_source = [{'res': str(videos_source_dict)}]
+
+    if videos_source_dict:
+        videos_source_dict = scanfiles.dict_denester(videos_source_dict)
+        tiktok_data = [{"Key":k, "Value": v} for k, v in videos_source_dict.items()]
+        df = pd.DataFrame(tiktok_data)
+        result["tiktok_data"] = {"data": df, "title": TABLE_TITLES["tiktok_data"]}
+
     # posts_and_comments = []
 
     # for item in posts_and_comments_dict['reactions_v2']:
@@ -863,13 +877,13 @@ def extract_tiktok(tiktok_zip):
     #                                 'timestamp': item['timestamp']
     #                                 })
 
-    if len(videos_source) == 0:
-        videos_source = None
+    #if len(videos_source) == 0:
+    #    videos_source = None
 
-    if videos_source:
-        df = pd.DataFrame(videos_source)
-        # df['timestamp'] = df['timestamp'].apply(fix_timestamp)
-        result["videos_source"] = {"data": df, "title": TABLE_TITLES["facebook_posts_and_comments"]}
+    #if videos_source:
+    #    df = pd.DataFrame(videos_source)
+    #    # df['timestamp'] = df['timestamp'].apply(fix_timestamp)
+    #    result["videos_source"] = {"data": df, "title": TABLE_TITLES["facebook_posts_and_comments"]}
 
     return validation, result
 
