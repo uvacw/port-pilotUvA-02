@@ -153,5 +153,5 @@ var cancelButtonLabel = new TextBundle()
     .add('en', 'No')
     .add('nl', 'Nee');
 var description = new TextBundle()
-    .add('en', 'Determine whether you would like to donate the data below. Carefully check the data and adjust when required. With your donation you contribute to the previously described research. Thank you in advance.')
+    .add('en', 'Please review the data below and confirm whether you would like to donate it. Carefully check the data and adjust when required. As the research project is only interested in organizations, we recommend you to click on adjust and remove all data that is not related to organizations (e.g., companies, public institutions, governments etc.). With your donation you contribute to the previously described research. Thank you in advance')
     .add('nl', 'Bepaal of u de onderstaande gegevens wilt doneren. Bekijk de gegevens zorgvuldig en pas zo nodig aan. Met uw donatie draagt u bij aan het eerder beschreven onderzoek. Alvast hartelijk dank.');
