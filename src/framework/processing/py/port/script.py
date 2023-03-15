@@ -10,7 +10,7 @@ from port.api.commands import (CommandSystemDonate, CommandUIRender)
 from ddpinspect import unzipddp
 from ddpinspect import twitter
 from ddpinspect import instagram
-from ddpinspect import youtube
+from ddpinspect import tiktok
 from ddpinspect import facebook
 from ddpinspect.validate import Language
 from ddpinspect.validate import DDPFiletype
@@ -27,13 +27,13 @@ def fix_timestamp(timestamp):
 LOG_STREAM = io.StringIO()
 
 logging.basicConfig(
-    stream=LOG_STREAM,
+    # stream=LOG_STREAM, ## REMOVE COMMENT BEFORE DEPLOYMENT
     level=logging.INFO,
     format="%(asctime)s --- %(name)s --- %(levelname)s --- %(message)s",
     datefmt="%Y-%m-%dT%H:%M:%S%z",
 )
 
-LOGGER = logging.getLogger("yolo")
+LOGGER = logging.getLogger("LOGS_PORT")
 
 TABLE_TITLES = {
     "twitter_interests": props.Translatable(
@@ -261,6 +261,13 @@ TABLE_TITLES = {
             "nl": "Reacties die je hebt geplaats op Youtube:",
         }
     ),
+    "tiktok_following": props.Translatable(
+        {
+            "en": "Accounts followed on TikTok:",
+            "nl": "Accounts followed on TikTok:",
+        }
+    ),
+
     "empty_result_set": props.Translatable(
         {
             "en": "We could not extract any data:",
@@ -278,7 +285,7 @@ def process(sessionId):
         ("Twitter", extract_twitter),
         ("Instagram", extract_instagram),
         ("Facebook", extract_facebook),
-        # ("TikTok", extract_tiktok),        
+        ("TikTok", extract_tiktok),        
         # ("YouTube", extract_youtube),
     ]
 
@@ -298,7 +305,7 @@ def process(sessionId):
             LOGGER.info("Prompt for file for %s", platform_name)
             yield donate_logs(f"{sessionId}-tracking")
 
-            promptFile = prompt_file("application/zip, text/plain", platform_name)
+            promptFile = prompt_file("application/zip, text/plain", platform_name) # , application/json
             fileResult = yield render_donation_page(platform_name, promptFile, progress)
 
             if fileResult.__type__ == "PayloadString":
@@ -648,35 +655,6 @@ def extract_instagram(instagram_zip):
         result["following"] = {"data": df, "title": TABLE_TITLES["instagram_following"]}
 
 
-    liked_posts_bytes = unzipddp.extract_file_from_zip(instagram_zip, "liked_posts.json")
-    liked_posts_dict = unzipddp.read_json_from_bytes(liked_posts_bytes)
-
-    try:
-        liked_posts = [{
-                        'title': item.get('title', None),
-                        'Timestamp': item['string_list_data'][0].get('timestamp', None),
-
-                        }
-                        for item in liked_posts_dict['likes_media_likes']]
-    except Exception as e:
-        liked_posts = [{'title': str(e), 'Timestamp': 1407309914},]
-    
-    if liked_posts:
-        df = pd.DataFrame(liked_posts)
-
-        df_agg = pd.DataFrame(df['title'].value_counts()).reset_index().rename(columns={'index': 'title', 'title': 'Number of posts'})
-        df_timestamps_min = df[['title', 'Timestamp']].sort_values(by='Timestamp', ascending=True).drop_duplicates(subset=['title']).rename(columns={'Timestamp': 'Earliest like'})
-        df_timestamps_max = df[['title', 'Timestamp']].sort_values(by='Timestamp', ascending=False).drop_duplicates(subset=['title']).rename(columns={'Timestamp': 'Latest like'})
-        df_agg = df_agg.merge(df_timestamps_min, how='left', on='title')
-        df_agg = df_agg.merge(df_timestamps_max, how='left', on='title')
-
-        df_agg['Earliest like'] = df_agg['Earliest like'].apply(fix_timestamp)
-        df_agg['Latest like'] = df_agg['Latest like'].apply(fix_timestamp)
-
-        result["liked_posts"] = {"data": df_agg, "title": TABLE_TITLES["instagram_liked_posts"]}
-
-
-
     try:
         story_likes_bytes = unzipddp.extract_file_from_zip(instagram_zip, "story_likes.json")
         story_likes_dict = unzipddp.read_json_from_bytes(story_likes_bytes)
@@ -705,7 +683,32 @@ def extract_instagram(instagram_zip):
 
         result["liked_posts"] = {"data": df_agg, "title": TABLE_TITLES["instagram_story_likes"]}
 
+    liked_posts_bytes = unzipddp.extract_file_from_zip(instagram_zip, "liked_posts.json")
+    liked_posts_dict = unzipddp.read_json_from_bytes(liked_posts_bytes)
 
+    try:
+        liked_posts = [{
+                        'title': item.get('title', None),
+                        'Timestamp': item['string_list_data'][0].get('timestamp', None),
+
+                        }
+                        for item in liked_posts_dict['likes_media_likes']]
+    except Exception as e:
+        liked_posts = None
+    
+    if liked_posts:
+        df = pd.DataFrame(liked_posts)
+
+        df_agg = pd.DataFrame(df['title'].value_counts()).reset_index().rename(columns={'index': 'title', 'title': 'Number of posts'})
+        df_timestamps_min = df[['title', 'Timestamp']].sort_values(by='Timestamp', ascending=True).drop_duplicates(subset=['title']).rename(columns={'Timestamp': 'Earliest like'})
+        df_timestamps_max = df[['title', 'Timestamp']].sort_values(by='Timestamp', ascending=False).drop_duplicates(subset=['title']).rename(columns={'Timestamp': 'Latest like'})
+        df_agg = df_agg.merge(df_timestamps_min, how='left', on='title')
+        df_agg = df_agg.merge(df_timestamps_max, how='left', on='title')
+
+        df_agg['Earliest like'] = df_agg['Earliest like'].apply(fix_timestamp)
+        df_agg['Latest like'] = df_agg['Latest like'].apply(fix_timestamp)
+
+        result["liked_posts"] = {"data": df_agg, "title": TABLE_TITLES["instagram_liked_posts"]}
 
 
     return validation, result
@@ -766,30 +769,29 @@ def extract_facebook(facebook_zip):
 
 
 def extract_tiktok(tiktok_zip):
+    print('started with tiktok extraction function')
     result = {}
 
-    # validation = facebook.validate_zip(facebook_zip) ## need validation
-    validation = True
+    validation = tiktok.validate_zip(tiktok_zip) ## need validation
+   
 
-    videos_source_bytes = unzipddp.extract_file_from_zip(tiktok_zip, "user_data.json")
-    videos_source_dict = unzipddp.read_json_from_bytes(videos_source_bytes)
-    videos_source = [{'res': str(videos_source_dict)}]
-    # posts_and_comments = []
+    tiktok_source_bytes = unzipddp.extract_file_from_zip(tiktok_zip, "user_data.json")
+    tiktok_source_dict = unzipddp.read_json_from_bytes(tiktok_source_bytes)
 
-    # for item in posts_and_comments_dict['reactions_v2']:
-    #     if 'data' in item.keys():
-    #         posts_and_comments.append({'reaction': item['data'][0]['reaction']['reaction'],
-    #                                 'title': item['title'],
-    #                                 'timestamp': item['timestamp']
-    #                                 })
 
-    if len(videos_source) == 0:
-        videos_source = None
 
-    if videos_source:
-        df = pd.DataFrame(videos_source)
-        # df['timestamp'] = df['timestamp'].apply(fix_timestamp)
-        result["videos_source"] = {"data": df, "title": TABLE_TITLES["facebook_posts_and_comments"]}
+    try:
+        following = [{'UserName': item.get('UserName',None),
+                        'Date' : item.get('Date',None),
+                        }
+                        for item in tiktok_source_dict.get('Activity', {}).get('Following List', {}).get('Following',[{}])]
+    except:
+        following = None    
+    
+
+    if following:
+        df = pd.DataFrame(following)
+        result["following"] = {"data": df, "title": TABLE_TITLES["tiktok_following"]}
 
     return validation, result
 

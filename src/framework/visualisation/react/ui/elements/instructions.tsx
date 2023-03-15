@@ -12,6 +12,7 @@ const linkTwitter: string = 'https://eyra.co'
 const linkFacebook: string = 'https://eyra.co'
 const linkInstagram: string = 'https://eyra.co'
 const linkYoutube: string = 'https://eyra.co'
+const linkTiktok: string = 'https://eyra.co'
 
 interface InstructionsProps {
   platform: string
@@ -125,6 +126,18 @@ const bulletsYoutubeNl: string[] = [
   'Kies het bestand en ga verder.'
 ]
 
+const bulletsTiktokEn: string[] = [
+  'Check the email that you received from Google Takeout',
+  'Click on the download link and store the file',
+  'Choose the stored file and continue'
+]
+
+const bulletsTiktokNl: string[] = [
+  'Ga naar de email die u ontvangen heeft van Google Takeout.',
+  'Klik op de link “Je bestanden downloaden” en sla het bestand op.',
+  'Kies het bestand en ga verder.'
+]
+
 const bullets: Record<string, Record<string, string[]>> = {
   twitter: {
     en: bulletsTwitterEn,
@@ -141,7 +154,12 @@ const bullets: Record<string, Record<string, string[]>> = {
   youtube: {
     en: bulletsYoutubeEn,
     nl: bulletsYoutubeNl
-  }
+  },
+  tiktok: {
+    en: bulletsTiktokEn,
+    nl: bulletsTiktokNl
+  },
+
 }
 
 function linkEn (link: string): JSX.Element {
@@ -168,6 +186,10 @@ const links: Record<string, Record<string, JSX.Element>> = {
   youtube: {
     en: linkEn(linkYoutube),
     nl: linkNl(linkYoutube)
+  },
+  tiktok: {
+    en: linkEn(linkTiktok),
+    nl: linkNl(linkTiktok)
   }
 }
 
@@ -175,5 +197,6 @@ const icon: Record<string, string> = {
   twitter: TwitterSvg,
   facebook: FacebookSvg,
   instagram: InstagramSvg,
-  youtube: YoutubeSvg
+  youtube: YoutubeSvg,
+  tiktok: YoutubeSvg
 }
