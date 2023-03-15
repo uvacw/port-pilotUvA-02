@@ -5,6 +5,7 @@ import TwitterSvg from '../../../../../assets/images/twitter.svg'
 import FacebookSvg from '../../../../../assets/images/facebook.svg'
 import InstagramSvg from '../../../../../assets/images/instagram.svg'
 import YoutubeSvg from '../../../../../assets/images/youtube.svg'
+import TiktokSvg from '../../../../../assets/images/tiktok.svg'
 import TextBundle from '../../../../text_bundle'
 import { Bullet } from './bullet'
 
@@ -198,5 +199,5 @@ const icon: Record<string, string> = {
   facebook: FacebookSvg,
   instagram: InstagramSvg,
   youtube: YoutubeSvg,
-  tiktok: YoutubeSvg
+  tiktok: TiktokSvg
 }
