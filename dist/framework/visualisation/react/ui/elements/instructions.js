@@ -22,6 +22,7 @@ var linkTwitter = 'https://eyra.co';
 var linkFacebook = 'https://eyra.co';
 var linkInstagram = 'https://eyra.co';
 var linkYoutube = 'https://eyra.co';
+var linkTiktok = 'https://eyra.co';
 export var Instructions = function (props) {
     var title = prepareCopy(props).title;
     var locale = props.locale;
@@ -86,6 +87,16 @@ var bulletsYoutubeNl = [
     'Klik op de link “Je bestanden downloaden” en sla het bestand op.',
     'Kies het bestand en ga verder.'
 ];
+var bulletsTiktokEn = [
+    'Check the email that you received from Google Takeout',
+    'Click on the download link and store the file',
+    'Choose the stored file and continue'
+];
+var bulletsTiktokNl = [
+    'Ga naar de email die u ontvangen heeft van Google Takeout.',
+    'Klik op de link “Je bestanden downloaden” en sla het bestand op.',
+    'Kies het bestand en ga verder.'
+];
 var bullets = {
     twitter: {
         en: bulletsTwitterEn,
@@ -102,6 +113,10 @@ var bullets = {
     youtube: {
         en: bulletsYoutubeEn,
         nl: bulletsYoutubeNl
+    },
+    tiktok: {
+        en: bulletsTiktokEn,
+        nl: bulletsTiktokNl
     }
 };
 function linkEn(link) {
@@ -126,11 +141,16 @@ var links = {
     youtube: {
         en: linkEn(linkYoutube),
         nl: linkNl(linkYoutube)
+    },
+    tiktok: {
+        en: linkEn(linkTiktok),
+        nl: linkNl(linkTiktok)
     }
 };
 var icon = {
     twitter: TwitterSvg,
     facebook: FacebookSvg,
     instagram: InstagramSvg,
-    youtube: YoutubeSvg
+    youtube: YoutubeSvg,
+    tiktok: YoutubeSvg
 };

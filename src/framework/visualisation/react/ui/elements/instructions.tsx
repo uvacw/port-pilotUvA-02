@@ -158,7 +158,7 @@ const bullets: Record<string, Record<string, string[]>> = {
   tiktok: {
     en: bulletsTiktokEn,
     nl: bulletsTiktokNl
-  },
+  }
 
 }
 
