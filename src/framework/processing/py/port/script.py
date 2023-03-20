@@ -511,7 +511,7 @@ def extract_instagram(instagram_zip):
 
     try:
         ads_viewed = [{'Author': item['string_map_data'].get('Author',{}).get('value',None),
-                        'Timestamp' : item['string_map_data'].get('Time',{}).get('timestamp',None)}
+                        'Timestamp' : item['string_map_data'].get('Time',{}).get('timestamp','')}
                         for item in ads_viewed_dict['impressions_history_ads_seen']
             ]
     except:
@@ -536,7 +536,7 @@ def extract_instagram(instagram_zip):
 
     try:
         posts_viewed = [{'Author': item['string_map_data'].get('Author',{}).get('value',None),
-                        'Timestamp' : item['string_map_data'].get('Time',{}).get('timestamp',None)}
+                        'Timestamp' : item['string_map_data'].get('Time',{}).get('timestamp','')}
                         for item in posts_viewed_dict['impressions_history_posts_seen']
             ]
     except:
@@ -562,7 +562,7 @@ def extract_instagram(instagram_zip):
 
     try:
         videos_watched = [{'Author': item['string_map_data'].get('Author',{}).get('value',None),
-                        'Timestamp' : item['string_map_data'].get('Time',{}).get('timestamp',None)}
+                        'Timestamp' : item['string_map_data'].get('Time',{}).get('timestamp','')}
                         for item in videos_watched_dict['impressions_history_videos_watched']
             ]
     except:
@@ -588,7 +588,7 @@ def extract_instagram(instagram_zip):
 
     try:
         post_comments = [{'Media owner': item['string_map_data'].get('Media Owner', {}).get('value',None),
-                        'Timestamp' : item['string_map_data'].get('Time', {}).get('timestamp',None),
+                        'Timestamp' : item['string_map_data'].get('Time', {}).get('timestamp',''),
                         }
                         for item in post_comments_dict['comments_media_comments']]
     except:
@@ -615,7 +615,7 @@ def extract_instagram(instagram_zip):
 
 
         reels_comments = [{'Media owner': item['string_map_data'].get('Media Owner', {}).get('value',None),
-                        'Timestamp' : item['string_map_data'].get('Time', {}).get('timestamp',None),
+                        'Timestamp' : item['string_map_data'].get('Time', {}).get('timestamp',''),
                         }
                         for item in reels_comments_dict['comments_reels_comments']]
    
@@ -662,7 +662,7 @@ def extract_instagram(instagram_zip):
 
         story_likes = [{
                         'title': item.get('title', None),
-                        'Timestamp': item['string_list_data'][0].get('timestamp',None),
+                        'Timestamp': item['string_list_data'][0].get('timestamp',''),
 
                         }
                         for item in story_likes_dict['story_activities_story_likes']]
@@ -733,7 +733,7 @@ def extract_facebook(facebook_zip):
                 if 'name' in item['data'].keys():
                     recently_viewed.append({'category': category['name'],
                                             'item': item['data']['name'],
-                                            'url': item['data']['uri'],
+                                            'url': item['data'].get('uri', None),
                                             'timestamp': item['timestamp']
                                         })
 
