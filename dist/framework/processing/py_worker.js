@@ -82,5 +82,5 @@ function loadPackages() {
 }
 function installPortPackage() {
     console.log('[ProcessingWorker] load port package');
-    return self.pyodide.runPythonAsync("\n    import micropip\n    await micropip.install(\"/port-0.0.0-py3-none-any.whl\", deps=False)\n    await micropip.install(\"https://d3i-infra.github.io/ddp-inspector/ddpinspect/dist/ddpinspect-0.1.1-py3-none-any.whl\", deps=False)\n\n    import port\n  ");
+    return self.pyodide.runPythonAsync("\n    import micropip\n    await micropip.install(\"/port-0.0.0-py3-none-any.whl\", deps=False)\n\n    import port\n  ");
 }
