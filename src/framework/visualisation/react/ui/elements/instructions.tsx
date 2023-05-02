@@ -9,11 +9,11 @@ import TiktokSvg from '../../../../../assets/images/tiktok.svg'
 import TextBundle from '../../../../text_bundle'
 import { Bullet } from './bullet'
 
-const linkTwitter: string = 'https://eyra.co'
-const linkFacebook: string = 'https://eyra.co'
-const linkInstagram: string = 'https://eyra.co'
+const linkTwitter: string = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/twitter.pdf'
+const linkFacebook: string = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/facebook.pdf'
+const linkInstagram: string = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/instagram.pdf'
 const linkYoutube: string = 'https://eyra.co'
-const linkTiktok: string = 'https://eyra.co'
+const linkTiktok: string = '#'
 
 interface InstructionsProps {
   platform: string
@@ -128,13 +128,13 @@ const bulletsYoutubeNl: string[] = [
 ]
 
 const bulletsTiktokEn: string[] = [
-  'Check the email that you received from Google Takeout',
+  'Check the notification that you received from TikTok',
   'Click on the download link and store the file',
   'Choose the stored file and continue'
 ]
 
 const bulletsTiktokNl: string[] = [
-  'Ga naar de email die u ontvangen heeft van Google Takeout.',
+  'Ga naar de notificatie die u ontvangen heeft van TikTok.',
   'Klik op de link “Je bestanden downloaden” en sla het bestand op.',
   'Kies het bestand en ga verder.'
 ]
