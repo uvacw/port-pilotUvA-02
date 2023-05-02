@@ -75,7 +75,7 @@ export const SplashScreen = (props: Props): JSX.Element => {
           </Bullet>
         </div>
         <div className='mb-10'>
-        This website keeps track of your activity - for example on which pages of this website you click and how long you spend time on those pages. This information is used by the research team to improve the website and to investigate and respond to technical problems. The information is not used for marketing or advertising purposes. More information can be found on our privacy page.
+          This website keeps track of your activity - for example on which pages of this website you click and how long you spend time on those pages. This information is used by the research team to improve the website and to investigate and respond to technical problems. The information is not used for marketing or advertising purposes. More information can be found on our privacy page.
         </div>
       </div>
     </>

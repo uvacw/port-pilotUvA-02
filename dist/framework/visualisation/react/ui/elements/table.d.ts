@@ -2,7 +2,7 @@
 import { Weak } from '../../../../helpers';
 import { PropsUITable, PropsUITableRow } from '../../../../types/elements';
 import { ReactFactoryContext } from '../../factory';
-declare type Props = Weak<PropsUITable> & TableContext & ReactFactoryContext;
+type Props = Weak<PropsUITable> & TableContext & ReactFactoryContext;
 export interface TableContext {
     onChange: (id: string, rows: PropsUITableRow[]) => void;
 }

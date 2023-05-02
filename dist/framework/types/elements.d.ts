@@ -1,8 +1,8 @@
 import { PropsUIPage } from './pages';
 import { PropsUIPrompt } from './prompts';
-export declare type PropsUI = PropsUIText | PropsUIButton | PropsUICheckBox | PropsUIRadioItem | PropsUISpinner | PropsUIProgress | PropsUIHeader | PropsUITable | PropsUISearchBar | PropsUIPage | PropsUIPrompt;
-export declare type PropsUIText = PropsUITextTitle0 | PropsUITextTitle1 | PropsUITextTitle2 | PropsUITextTitle3 | PropsUITextTitle6 | PropsUITextBodyLarge | PropsUITextLabel;
-export declare type PropsUIButton = PropsUIButtonPrimary | PropsUIButtonSecundary | PropsUIButtonBack | PropsUIButtonForward | PropsUIButtonIconBack | PropsUIButtonIconForward | PropsUIButtonIcon | PropsUIButtonLabel | PropsUIButtonIconLabel;
+export type PropsUI = PropsUIText | PropsUIButton | PropsUICheckBox | PropsUIRadioItem | PropsUISpinner | PropsUIProgress | PropsUIHeader | PropsUITable | PropsUISearchBar | PropsUIPage | PropsUIPrompt;
+export type PropsUIText = PropsUITextTitle0 | PropsUITextTitle1 | PropsUITextTitle2 | PropsUITextTitle3 | PropsUITextTitle6 | PropsUITextBodyLarge | PropsUITextLabel;
+export type PropsUIButton = PropsUIButtonPrimary | PropsUIButtonSecundary | PropsUIButtonBack | PropsUIButtonForward | PropsUIButtonIconBack | PropsUIButtonIconForward | PropsUIButtonIcon | PropsUIButtonLabel | PropsUIButtonIconLabel;
 export declare function isPropsUI(arg: any): arg is PropsUI;
 export declare function isPropsUIText(arg: any): arg is PropsUIText;
 export interface PropsUITextLabel {
@@ -214,7 +214,7 @@ export interface PropsUISearchBar {
     onSearch: (words: string[]) => void;
 }
 export declare function isPropsUISearchBar(arg: any): arg is PropsUISearchBar;
-export declare type Text = Translatable | string;
+export type Text = Translatable | string;
 export declare function isText(arg: any): arg is Text;
 export interface Translatable {
     translations: {
