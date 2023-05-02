@@ -9,7 +9,7 @@ import TiktokSvg from '../../../../../assets/images/tiktok.svg'
 import TextBundle from '../../../../text_bundle'
 import { Bullet } from './bullet'
 
-const linkTwitter: string = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/download_instructions/orgsoc_twitter.pdf'
+const linkTwitter: string = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/orgsoc_twitter.pdf'
 const linkFacebook: string = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/orgsoc_facebook.pdf'
 const linkInstagram: string = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/orgsoc_instagram.pdf'
 const linkYoutube: string = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/youtube.pdf'
