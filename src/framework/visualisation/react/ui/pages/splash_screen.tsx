@@ -75,7 +75,7 @@ export const SplashScreen = (props: Props): JSX.Element => {
           </Bullet>
         </div>
         <div className='mb-10'>
-          This website keeps track of your activity - for example on which pages of this website you click - as part of this research. More information can be found on our privacy page.
+        This website keeps track of your activity - for example on which pages of this website you click and how long you spend time on those pages. This information is used by the research team to improve the website and to investigate and respond to technical problems. The information is not used for marketing or advertising purposes. More information can be found on our privacy page.
         </div>
       </div>
     </>
@@ -101,7 +101,7 @@ export const SplashScreen = (props: Props): JSX.Element => {
             <div>Geeft u aan te weten dat als uw gegevens worden gebruikt in wetenschappelijke publicaties, of deze op een andere manier openbaar worden gemaakt, dit dan anoniem gebeurt.</div>
           </Bullet>
           <Bullet>
-            <div>Geeft u aan te weten dat u het recht hebt om uw toestemming binnen 7 dagen in te trekken door contact met Panel Inzicht op te nemen.</div>
+            <div>Geeft u aan te weten dat u het recht hebt om uw toestemming binnen 7 dagen in te trekken door contact met de projectleider. U kunt haar contacten vinden in de enquête die u zojuist hebt beantwoord.</div>
           </Bullet>
         </div>
         <div className='mb-10'>
