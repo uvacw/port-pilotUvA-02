@@ -17,6 +17,8 @@ from port.ddpinspect.validate import DDPFiletype
 
 from datetime import datetime
 def fix_timestamp(timestamp):
+    if not timestamp:
+        return None
     try:
         return str(datetime.utcfromtimestamp(timestamp))
     except Exception as e:
@@ -723,62 +725,63 @@ def extract_facebook(facebook_zip):
     recently_viewed_dict = unzipddp.read_json_from_bytes(recently_viewed_bytes)
     recently_viewed = []
 
-    # COMMENT FOR THEO 
-    # You need to make sure you are not accessing objects that might be uninitialized
-    #
-    # When testing your code I just chucked some DDPs in there
-    # In this specific case its a dict
-    # In my case, the key 'recently_viewed' does not exists, resulting in a crash
-    # In this case I wrapped it in a huge ugly try except block, to account for this specific edge case
-    # You need to rewrite this to minimize the impact of aa crash to specific parts of your code
+    viewed_items = recently_viewed_dict.get('recently_viewed', [])
+    for category in viewed_items:
+        category_name = category.get('name', None)
+        children = category.get('children', [])
+        for child in children:
+            child_name = child.get('name', None)
+            entries = child.get('entries', [])
+            for entry in entries:
+                timestamp = entry.get('timestamp', None)
+                data = entry.get('data', {})
+                entry_name = data.get('name', None)
+                entry_url = data.get('uri', None)
+                recently_viewed.append({'category': category_name, 
+                                        'subcategory': child_name,
+                                        'item': entry_name,
+                                        'url' :  entry_url,
+                                        'timestamp': fix_timestamp(timestamp)
+                                    })
 
-    try:
-        for category in recently_viewed_dict['recently_viewed']:
-            if 'children' in category.keys():
-                items = category['children']
-            if 'entries' in category.keys():
-                items = category['entries']
-            for item in items:
-                if 'data' in item.keys():
-                    if 'name' in item['data'].keys():
-                        recently_viewed.append({'category': category['name'],
-                                                'item': item['data']['name'],
-                                                'url': item['data'].get('uri', None),
-                                                'timestamp': item['timestamp']
-                                            })
+    recently_viewed = pd.DataFrame(recently_viewed)
+    if len(recently_viewed) > 0:
+        recently_viewed = recently_viewed.dropna(subset=['item'])
+        recently_viewed = recently_viewed.reset_index()
+        del recently_viewed['index']
+        result["recently_viewed"] = {"data": recently_viewed, "title": TABLE_TITLES["facebook_recently_viewed"]}
+        
 
-        if len(recently_viewed) == 0:
-            recently_viewed = None
-
-        if recently_viewed:
-            df = pd.DataFrame(recently_viewed)
-            df['timestamp'] = df['timestamp'].apply(fix_timestamp)
-            result["recently_viewed"] = {"data": df, "title": TABLE_TITLES["facebook_recently_viewed"]}
-
-        posts_and_comments_bytes = unzipddp.extract_file_from_zip(facebook_zip, "posts_and_comments.json")
-        posts_and_comments_dict = unzipddp.read_json_from_bytes(posts_and_comments_bytes)
-        posts_and_comments = [{'res': str(posts_and_comments_dict)}]
-        posts_and_comments = []
-
-        # COMMENT FOR THEO 
-        # same issue here
-        for item in posts_and_comments_dict['reactions_v2']:
-            if 'data' in item.keys():
-                posts_and_comments.append({'reaction': item['data'][0]['reaction']['reaction'],
-                                        'title': item['title'],
-                                        'timestamp': item['timestamp']
-                                        })
-
-        if len(posts_and_comments) == 0:
-            posts_and_comments = None
-
-        if posts_and_comments:
-            df = pd.DataFrame(posts_and_comments)
-            df['timestamp'] = df['timestamp'].apply(fix_timestamp)
-            result["posts_and_comments"] = {"data": df, "title": TABLE_TITLES["facebook_posts_and_comments"]}
-
-    except:
-        pass
+    posts_and_comments_bytes = unzipddp.extract_file_from_zip(facebook_zip, "likes_and_reactions_1.json")
+    posts_and_comments_dict = unzipddp.read_json_from_bytes(posts_and_comments_bytes)
+    posts_and_comments = []
+    if type(posts_and_comments_dict) == list:
+        for item in posts_and_comments_dict:
+            posts_and_comments.append({'timestamp': fix_timestamp(item.get('timestamp', None)),
+                                    'reaction' : item.get('data',[{},])[0].get('reaction',{}).get('reaction',None),
+                                    'title': item.get('title', None),
+                                    'actor': item.get('data',[{},])[0].get('reaction',{}).get('actor',None),
+                
+            })
+            
+            
+    def remove_actor(row):
+        if 'title' not in row.keys():
+            return row
+        if 'actor' not in row.keys():
+            return row
+        row['title'] = str(row['title']).replace(str(row['actor']),'')
+        return row
+            
+            
+    posts_and_comments = pd.DataFrame(posts_and_comments)
+    if len(posts_and_comments) > 0:
+        posts_and_comments = posts_and_comments.apply(remove_actor, axis=1)
+        del posts_and_comments['actor']
+        posts_and_comments = posts_and_comments.dropna(subset=['title'])
+        posts_and_comments = posts_and_comments.reset_index()
+        del posts_and_comments['index']
+        result["posts_and_comments"] = {"data": posts_and_comments, "title": TABLE_TITLES["facebook_posts_and_comments"]}
 
     return validation, result
 
