@@ -4,8 +4,12 @@ import { PropsUIRadioItem, Text } from './elements'
 export type PropsUIPrompt =
   PropsUIPromptFileInput |
   PropsUIPromptRadioInput |
+<<<<<<< HEAD
   PropsUIPromptConsentForm |
   PropsUIPromptConfirm
+=======
+  PropsUIPromptConsentForm
+>>>>>>> 1bef708d (.)
 
 export function isPropsUIPrompt (arg: any): arg is PropsUIPrompt {
   return isPropsUIPromptFileInput(arg) ||
