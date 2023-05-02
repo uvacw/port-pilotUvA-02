@@ -128,13 +128,13 @@ const bulletsYoutubeNl: string[] = [
 ]
 
 const bulletsTiktokEn: string[] = [
-  'Check the email that you received from Google Takeout',
+  'Check the notification that you received from TikTok',
   'Click on the download link and store the file',
   'Choose the stored file and continue'
 ]
 
 const bulletsTiktokNl: string[] = [
-  'Ga naar de email die u ontvangen heeft van Google Takeout.',
+  'Ga naar de notificatie die u ontvangen heeft van TikTok.',
   'Klik op de link “Je bestanden downloaden” en sla het bestand op.',
   'Kies het bestand en ga verder.'
 ]

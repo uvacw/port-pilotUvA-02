@@ -19,11 +19,19 @@ import YoutubeSvg from '../../../../../assets/images/youtube.svg';
 import TiktokSvg from '../../../../../assets/images/tiktok.svg';
 import TextBundle from '../../../../text_bundle';
 import { Bullet } from './bullet';
+<<<<<<< HEAD
 var linkTwitter = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/download_instructions/orgsoc_twitter.pdf';
 var linkFacebook = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/orgsoc_facebook.pdf';
 var linkInstagram = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/orgsoc_instagram.pdf';
 var linkYoutube = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/youtube.pdf';
 var linkTiktok = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/orgsoc_tiktok.pdf';
+=======
+var linkTwitter = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/twitter.pdf';
+var linkFacebook = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/facebook.pdf';
+var linkInstagram = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/instagram.pdf';
+var linkYoutube = 'https://eyra.co';
+var linkTiktok = '#';
+>>>>>>> 2bcfe10d29057ba8efc55aa85fcd3db16cf97db5
 export var Instructions = function (props) {
     var title = prepareCopy(props).title;
     var locale = props.locale;
@@ -89,12 +97,12 @@ var bulletsYoutubeNl = [
     'Kies het bestand en ga verder.'
 ];
 var bulletsTiktokEn = [
-    'Check the email that you received from Google Takeout',
+    'Check the notification that you received from TikTok',
     'Click on the download link and store the file',
     'Choose the stored file and continue'
 ];
 var bulletsTiktokNl = [
-    'Ga naar de email die u ontvangen heeft van Google Takeout.',
+    'Ga naar de notificatie die u ontvangen heeft van TikTok.',
     'Klik op de link “Je bestanden downloaden” en sla het bestand op.',
     'Kies het bestand en ga verder.'
 ];
