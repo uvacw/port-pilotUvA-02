@@ -409,7 +409,8 @@ def extract_twitter(twitter_zip):
 
     like_bytes = unzipddp.extract_file_from_zip(twitter_zip, "like.js")
     like_listdict = twitter.bytesio_to_listdict(like_bytes)
-    likes = [{'tweetdId': item['like']['tweetId'], 'text': item['like']['fullText']} for item in like_listdict if 'like' in item.keys()]
+    likes = [{'tweetdId': item.get('like', {}).get('tweetId',None), 
+              'text': item.get('like', {}).get('fullText', None)} for item in like_listdict if 'like' in item.keys()]
 
 
     if likes:
@@ -419,7 +420,7 @@ def extract_twitter(twitter_zip):
 
     following_bytes = unzipddp.extract_file_from_zip(twitter_zip, "following.js")
     following_listdict = twitter.bytesio_to_listdict(following_bytes)
-    following = [{'accountId': item['following']['accountId']} for item in following_listdict if 'following' in item.keys()]
+    following = [{'accountId': item.get('following',{}).get('accountId',None)} for item in following_listdict if 'following' in item.keys()]
 
 
     if following:
@@ -471,6 +472,11 @@ def extract_twitter(twitter_zip):
 
     tweets_bytes = unzipddp.extract_file_from_zip(twitter_zip, "tweet.js")
     tweets_listdict = twitter.bytesio_to_listdict(tweets_bytes)
+    if len(tweets_listdict) == 0:
+        tweets_bytes = unzipddp.extract_file_from_zip(twitter_zip, "tweets.js")
+        tweets_listdict = twitter.bytesio_to_listdict(tweets_bytes)
+
+
     mentions = []
     replies = []
     for item in tweets_listdict:
