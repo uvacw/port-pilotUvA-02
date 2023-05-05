@@ -22,7 +22,11 @@ def fix_timestamp(timestamp):
     try:
         return str(datetime.utcfromtimestamp(timestamp))
     except Exception as e:
-        return str(e)
+        if type(timestamp) == str:
+            if len(timestamp) == 0:
+                return ''
+            else:
+                return str(e)
 
 
 
@@ -402,6 +406,35 @@ def donate_logs(key):
 ##################################################################
 # Extraction functions
 
+# result["following"] = {"data": df, "title": TABLE_TITLES["twitter_following"]}
+
+def break_result(result, threshold):
+    checked = {}
+    for key, value in result.items():
+        if type(value) == dict:
+            data = value.get('data', pd.DataFrame())
+            title = value.get('title', 'Data')
+            if len(data) < threshold:
+                checked[key] = {'data': data, 'title': title}
+            else:
+                counter = 0
+                while(len(data)) > threshold:
+                    df = data[:threshold].reset_index()
+                    del df['index']
+                    checked[str(key)+ '_' + str(counter)] = {'data': df, 'title': title}
+                    data = data[threshold:]
+                    counter += 1
+                df = data[:threshold].reset_index()
+                del df['index']
+                checked[str(key)+ '_' + str(counter)] = {'data': df, 'title': title}
+    return checked
+                
+
+
+
+
+
+
 def extract_twitter(twitter_zip):
     result = {}
 
@@ -504,8 +537,7 @@ def extract_twitter(twitter_zip):
         df_agg = pd.DataFrame(df['in_reply_to_screen_name'].value_counts()).reset_index().rename(columns={'in_reply_to_screen_name': 'number of replies', 'index': 'screen_name'})
         result["replies"] = {"data": df_agg, "title": TABLE_TITLES["twitter_replies"]}
 
-
-
+    result = break_result(result, 2500)
     return validation, result
 
 
@@ -519,7 +551,7 @@ def extract_instagram(instagram_zip):
 
     try:
         ads_viewed = [{'Author': item['string_map_data'].get('Author',{}).get('value',None),
-                        'Timestamp' : item['string_map_data'].get('Time',{}).get('timestamp','')}
+                        'Timestamp' : item['string_map_data'].get('Time',{}).get('timestamp',None)}
                         for item in ads_viewed_dict['impressions_history_ads_seen']
             ]
     except:
@@ -651,7 +683,7 @@ def extract_instagram(instagram_zip):
     try:
         following = [{
                         'value': item['string_list_data'][0]['value'],
-                        'timestamp': item['string_list_data'][0]['timestamp'],
+                        'timestamp': fix_timestamp(item['string_list_data'][0]['timestamp']),
 
                         }
                         for item in following_dict['relationships_following']]
@@ -718,7 +750,7 @@ def extract_instagram(instagram_zip):
 
         result["liked_posts"] = {"data": df_agg, "title": TABLE_TITLES["instagram_liked_posts"]}
 
-
+    result = break_result(result, 2500)
     return validation, result
 
 
@@ -789,6 +821,7 @@ def extract_facebook(facebook_zip):
         del posts_and_comments['index']
         result["posts_and_comments"] = {"data": posts_and_comments, "title": TABLE_TITLES["facebook_posts_and_comments"]}
 
+    result = break_result(result, 2500)
     return validation, result
 
 
@@ -816,51 +849,12 @@ def extract_tiktok(tiktok_zip):
     if following:
         df = pd.DataFrame(following)
         result["following"] = {"data": df, "title": TABLE_TITLES["tiktok_following"]}
-
+    
+    result = break_result(result, 2500)
     return validation, result
 
 
-# def extract_youtube(youtube_zip):
-#     result = {}
 
-#     validation = youtube.validate_zip(youtube_zip)
-#     if validation.ddp_category is not None:
-#         if validation.ddp_category.language == Language.EN:
-#             subscriptions_fn = "subscriptions.csv"
-#             watch_history_fn = "watch-history"
-#             comments_fn = "my-comments.html"
-#         else:
-#             subscriptions_fn = "abonnementen.csv"
-#             watch_history_fn = "kijkgeschiedenis"
-#             comments_fn = "mijn-reacties.html"
-
-#         # Get subscriptions
-#         subscriptions_bytes = unzipddp.extract_file_from_zip( youtube_zip, subscriptions_fn)
-#         subscriptions_listdict = unzipddp.read_csv_from_bytes(subscriptions_bytes)
-#         df = youtube.to_df(subscriptions_listdict)
-#         if not df.empty:
-#             result["subscriptions"] = {"data": df, "title": TABLE_TITLES["youtube_subscriptions"]}
-        
-#         # Get watch history
-#         if validation.ddp_category.ddp_filetype == DDPFiletype.JSON:
-#             watch_history_fn = watch_history_fn + ".json"
-#             watch_history_bytes = unzipddp.extract_file_from_zip(youtube_zip, watch_history_fn)
-#             watch_history_listdict = unzipddp.read_json_from_bytes(watch_history_bytes)
-#             df = youtube.to_df(watch_history_listdict)
-#         if validation.ddp_category.ddp_filetype == DDPFiletype.HTML:
-#             watch_history_fn = watch_history_fn + ".html"
-#             watch_history_bytes = unzipddp.extract_file_from_zip(youtube_zip, watch_history_fn)
-#             df = youtube.watch_history_html_to_df(watch_history_bytes)
-#         if not df.empty:
-#             result["watch_history"] = {"data": df, "title": TABLE_TITLES["youtube_watch_history"]}
-
-#         # Get comments
-#         comments_bytes = unzipddp.extract_file_from_zip(youtube_zip, comments_fn)
-#         df = youtube.comments_to_df(comments_bytes)
-#         if not df.empty:
-#             result["comments"] = { "data": df, "title": TABLE_TITLES["youtube_comments"]}
-
-#     return validation, result
 
 
 ##########################################
