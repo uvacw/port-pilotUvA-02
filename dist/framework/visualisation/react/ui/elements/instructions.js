@@ -20,8 +20,8 @@ import TiktokSvg from '../../../../../assets/images/tiktok.svg';
 import TextBundle from '../../../../text_bundle';
 import { Bullet } from './bullet';
 var linkTwitter = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/orgsoc_twitter.pdf';
-var linkFacebook = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/orgsoc_facebook.pdf';
-var linkInstagram = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/orgsoc_instagram.pdf';
+var linkFacebook = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/orgsoc_facebook_v2.pdf';
+var linkInstagram = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/orgsoc_instagram_v2.pdf';
 var linkYoutube = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/youtube.pdf';
 var linkTiktok = 'https://d3iwebserver-webapp-serve-privacy-support-page.azurewebsites.net/instructions/orgsoc_tiktok.pdf';
 export var Instructions = function (props) {

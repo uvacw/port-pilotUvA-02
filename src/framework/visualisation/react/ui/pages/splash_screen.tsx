@@ -55,7 +55,7 @@ export const SplashScreen = (props: Props): JSX.Element => {
     <>
       <div className='text-bodylarge font-body text-grey1'>
         <div className='mb-4 text-bodylarge font-body text-grey1'>
-          You are about to start the process of donating your data to research institute ASCoR at Amsterdam University. The data that we ask you to donate will be used for academic research to gain insight into how individuals use social media when it comes to social media posts by organizations and how they engage with them.
+          You are about to start the process of donating your data to research institute ASCoR at the University of Amsterdam. The data that we ask you to donate will be used for academic research to gain insight into how individuals use social media when it comes to social media posts by organizations and how they engage with them.
         </div>
         <div className='mb-4 text-bodylarge font-body text-grey1'>
           We will walk you through this process step by step. During this process no data is stored or sent to ASCoR. You can delete rows from the data before donating. Data will only be donated and stored when you click the button “Yes, donate” on the page that shows your data.
