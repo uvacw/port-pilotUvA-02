@@ -1,18 +1,34 @@
-"""
-This module contains functions to classify strings found in data download packages
-"""
-
 from datetime import datetime, timezone
-import ipaddress
+from typing import Any
 import warnings
+import math
 import logging
 import re
 
 import pandas as pd
-
-from port.parserlib import urldetectionregex
+import numpy as np
 
 logger = logging.getLogger(__name__)
+
+REGEX_ISO8601_FULL = r"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])T(2[0-3]|[01][0-9]):([0-5][0-9]):([0-5][0-9])(\.[0-9]+)?(Z|[+-](?:2[0-3]|[01][0-9]):[0-5][0-9])?$"
+REGEX_ISO8601_DATE = r"^(-?(?:[1-9][0-9]*)?[0-9]{4})-(1[0-2]|0[1-9])-(3[01]|0[1-9]|[12][0-9])$"
+
+
+def split_dataframe(df: pd.DataFrame, row_count: int) -> list[pd.DataFrame]:
+    """
+    Port has trouble putting large tables in memory. 
+    Has to be expected. Solution split tables into smaller tables.
+    I have tried non-bespoke table soluions they did not perform any better
+
+    I hope you have an idea to make tables faster! Would be nice
+    """
+    # Calculate the number of splits needed.
+    num_splits = int(len(df) / row_count) + (len(df) % row_count > 0)
+
+    # Split the DataFrame into chunks of size row_count.
+    df_splits = [df[i*row_count:(i+1)*row_count].reset_index(drop=True) for i in range(num_splits)]
+
+    return df_splits
 
 
 class CannotConvertEpochTimestamp(Exception):
@@ -56,76 +72,6 @@ def is_timestamp(input_string: str) -> bool:
             return False
 
 
-def has_url(input_string: str, exact: bool = False) -> bool:
-    """
-    Detects if string contains urls, use exact is True if the string is a url
-    see ./urldetectionregex for the regexes
-
-    Note: I tried the package: urlextractor which is too slow
-    regex is magnitudes faster
-    """
-    try:
-        regex = (
-            urldetectionregex.URL_REGEX
-            if exact is False
-            else urldetectionregex.URL_REGEX_MATCH_BEGIN_AND_ENDLINE
-        )
-        assert re.search(regex, input_string) is not None
-        logger.debug("urls FOUND in: '%s'", input_string)
-        return True
-
-    except AssertionError as e:
-        logger.debug("%s, urls NOT found in: '%s'", e, input_string)
-        return False
-
-    except Exception as e:
-        logger.error(e)
-        return False
-
-
-def has_email(input_string: str, exact: bool = False) -> bool:
-    """
-    Detects if string contains emails
-    use exact is True if the string is an email
-    see ./urldetectionregex for the regexes
-    """
-    try:
-        regex = (
-            urldetectionregex.EMAIL_REGEX
-            if exact is False
-            else urldetectionregex.EMAIL_REGEX_MATCH_BEGIN_AND_ENDLINE
-        )
-        assert re.search(regex, input_string) is not None
-        logger.debug("emails FOUND in: '%s'", input_string)
-        return True
-
-    except AssertionError as e:
-        logger.debug("%s, emails NOT found in: '%s'", e, input_string)
-        return False
-
-    except Exception as e:
-        logger.error(e)
-        return False
-
-
-def is_ipaddress(input_string: str) -> bool:
-    """
-    Detects if string is a valid IPv4 or IPv6 address returns bool
-    """
-    try:
-        assert isinstance(input_string, str)
-        ipaddress.ip_address(input_string)
-        logger.debug("IP found in string: '%s'", input_string)
-        return True
-
-    except (ValueError, AssertionError) as e:
-        logger.debug("%s, IP NOT found in string: '%s'", e, input_string)
-        return False
-
-    except Exception as e:
-        logger.error(e)
-        return False
-
 
 def is_isoformat(
     datetime_str: list[str] | list[int], check_minimum: int, date_only: bool = False
@@ -136,9 +82,9 @@ def is_isoformat(
     """
 
     regex = (
-        urldetectionregex.REGEX_ISO8601_FULL
+        REGEX_ISO8601_FULL
         if date_only is False
-        else urldetectionregex.REGEX_ISO8601_DATE
+        else REGEX_ISO8601_DATE
     )
 
     try:
@@ -199,15 +145,15 @@ def is_epoch(datetime_int: list[int] | list[str], check_minimum: int) -> bool:
 def epoch_to_iso(epoch_timestamp: str | int) -> str:
     """
     Convert epoch timestamp to an ISO 8601 string. Assumes UTC.
-
-    If timestamp cannot be converted raise CannotConvertEpochTimestamp
     """
+
+    out = str(epoch_timestamp)
     try:
         epoch_timestamp = int(epoch_timestamp)
         out = datetime.fromtimestamp(epoch_timestamp, tz=timezone.utc).isoformat()
+        print(f"TIMESTAMP: {out}")
     except (OverflowError, OSError, ValueError, TypeError) as e:
         logger.error("Could not convert epoch time timestamp, %s", e)
-        raise CannotConvertEpochTimestamp("Cannot convert epoch timestamp") from e
 
     return out
 
@@ -268,3 +214,111 @@ def convert_datetime_str(datetime_str: list[str] | list[int]) -> pd.DatetimeInde
 
     finally:
         return out
+
+
+def dict_denester(
+    inp: dict[Any, Any] | list[Any],
+    new: dict[Any, Any] | None = None,
+    name: str = "",
+    run_first: bool = True,
+) -> dict[Any, Any]:
+    """
+    Denest a dict or list, returns a new denested dict
+    """
+
+    if run_first:
+        new = {}
+
+    if isinstance(inp, dict):
+        for k, v in inp.items():
+            if isinstance(v, (dict, list)):
+                dict_denester(v, new, f"{name}-{str(k)}", run_first=False)
+            else:
+                newname = f"{name}-{k}"
+                new.update({newname[1:]: v})  # type: ignore
+
+    elif isinstance(inp, list):
+        for i, item in enumerate(inp):
+            dict_denester(item, new, f"{name}-{i}", run_first=False)
+
+    else:
+        new.update({name[1:]: inp})  # type: ignore
+
+    return new  # type: ignore
+
+
+
+def find_items(d: dict[Any, Any],  key_to_match: str) -> str:
+    """
+    d is a denested dict
+    match all keys in d that contain key_to_match
+
+    return the value beloning to that key that is the least nested
+    In case of no match return empty string
+
+    example:
+    key_to_match = asd
+
+    asd-asd-asd-asd-asd-asd: 1
+    asd-asd: 2
+    qwe: 3
+
+    returns 2
+
+    This function is needed because your_posts_1.json contains a wide variety of nestedness per post
+    """
+    out = ""
+    pattern = r"{}".format(f"^.*{key_to_match}.*$")
+    depth = math.inf
+
+    try:
+        for k, v in d.items():
+            if re.match(pattern, k):
+                depth_current_match = k.count("-")
+                if depth_current_match < depth:
+                    depth = depth_current_match
+                    out = str(v)
+    except Exception as e:
+        logger.error("bork bork: %s", e)
+
+    return out
+
+
+
+def sort_isotimestamp_empty_timestamp_last(timestamp_series: pd.Series) -> pd.Series:
+    """
+    Can be used as follows:
+
+    df = df.sort_values(by="Date", key=sort_isotimestamp_empty_timestamp_last)
+    """
+
+    def convert_timestamp(timestamp):
+        out = np.inf
+        try:
+            if isinstance(timestamp, str) and len(timestamp) > 0:
+                dt = datetime.fromisoformat(timestamp)
+                out = -dt.timestamp()
+        except Exception as e:
+            logger.debug("Cannot convert timestamp: %s", e)
+
+        return out
+
+    return timestamp_series.apply(convert_timestamp)
+
+
+
+def fix_latin1_string(input: str) -> str:
+    """
+    Fixes the string encoding by attempting to encode it using the 'latin1' encoding and then decoding it.
+
+    Args:
+        input (str): The input string that needs to be fixed.
+
+    Returns:
+        str: The fixed string after encoding and decoding, or the original string if an exception occurs.
+    """
+    try:
+        fixed_string = input.encode("latin1").decode()
+        return fixed_string
+    except Exception:
+        return input

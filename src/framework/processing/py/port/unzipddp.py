@@ -8,49 +8,13 @@ import logging
 import zipfile
 import json
 import csv
-import time
-import os
 import io
 
-from port.ddpinspect.my_exceptions import FileNotFoundInZipError
+import pandas as pd
+
+from port.my_exceptions import FileNotFoundInZipError
 
 logger = logging.getLogger(__name__)
-
-
-def recursive_unzip(path_to_zip: Path, remove_source: bool = False) -> None:
-    """
-    Recursively unzips a file and extract in a new folder
-    """
-    p = Path(path_to_zip)
-
-    try:
-        new_location = p.parent / p.stem
-
-        with zipfile.ZipFile(p, "r") as zf:
-            logger.info("Extracting: %s", p)
-
-            # see https://stackoverflow.com/a/23133992
-            # zipfile overwrite modification times
-            # keep the original
-            for zi in zf.infolist():
-                date_time = time.mktime(zi.date_time + (0, 0, -1))
-                zf.extract(zi, new_location)
-                os.utime(new_location / zi.filename, (date_time, date_time))
-
-        if remove_source:
-            logger.debug("REMOVING: %s", p)
-            os.remove(p)
-
-        paths = Path(new_location).glob("**/*.zip")
-        for p in paths:
-            recursive_unzip(p, True)
-
-    except (EOFError, zipfile.BadZipFile) as e:
-        logger.error("Could NOT unzip: %s, %s", p, e)
-    except Exception as e:
-        logger.error("Could NOT unzip: %s, %s", p, e)
-        raise e
-
 
 def extract_file_from_zip(zfile: str, file_to_extract: str) -> io.BytesIO:
     """
@@ -66,6 +30,8 @@ def extract_file_from_zip(zfile: str, file_to_extract: str) -> io.BytesIO:
             for f in zf.namelist():
                 logger.debug("Contained in zip: %s", f)
                 if Path(f).name == file_to_extract:
+                    #print('extract_file_from_zip found a message json', f)
+
                     file_to_extract_bytes = io.BytesIO(zf.read(f))
                     file_found = True
                     break
@@ -160,7 +126,8 @@ def read_json_from_file(json_file: str) -> dict[Any, Any] | list[Any]:
 
 def read_csv_from_bytes(json_bytes: io.BytesIO) -> list[dict[Any, Any]]:
     """
-    Reads json from file if succesful it returns the result from json.load()
+    Reads csv from io.Bytes()
+    Expects input from extract_file_from_zip
     """
     out: list[dict[Any, Any]] = []
 
@@ -178,3 +145,13 @@ def read_csv_from_bytes(json_bytes: io.BytesIO) -> list[dict[Any, Any]]:
 
     finally:
         return out
+
+
+def read_csv_from_bytes_to_df(json_bytes: io.BytesIO) -> pd.DataFrame:
+    """
+    csv to pd.DataFrame
+    expects io.BytesIO as input (from extract_file_from_zip)
+    """
+    return pd.DataFrame(read_csv_from_bytes(json_bytes))
+
+

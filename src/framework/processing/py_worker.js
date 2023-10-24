@@ -52,20 +52,32 @@ function unwrap (response) {
   })
 }
 
-function copyFileToPyFS (file, resolve) {
-  const reader = file.stream().getReader()
-  const pyFile = self.pyodide.FS.open(file.name, 'w')
-
-  const writeToPyFS = ({ done, value }) => {
-    if (done) {
-      resolve({ __type__: 'PayloadString', value: file.name })
-    } else {
-      self.pyodide.FS.write(pyFile, value, 0, value.length)
-      reader.read().then(writeToPyFS)
-    }
-  }
-  reader.read().then(writeToPyFS)
+function copyFileToPyFS(file, resolve) {
+  self.pyodide.FS.mkdir('/file-input')
+  self.pyodide.FS.mount(
+    self.pyodide.FS.filesystems.WORKERFS,
+    {
+      files: [file]
+    },
+    '/file-input'
+  )
+  resolve({ __type__: 'PayloadString', value: '/file-input/' + file.name })
 }
+
+//function copyFileToPyFS (file, resolve) {
+//  const reader = file.stream().getReader()
+//  const pyFile = self.pyodide.FS.open(file.name, 'w')
+//
+//  const writeToPyFS = ({ done, value }) => {
+//    if (done) {
+//      resolve({ __type__: 'PayloadString', value: file.name })
+//    } else {
+//      self.pyodide.FS.write(pyFile, value, 0, value.length)
+//      reader.read().then(writeToPyFS)
+//    }
+//  }
+//  reader.read().then(writeToPyFS)
+//}
 
 function initialise () {
   console.log('[ProcessingWorker] initialise')
@@ -78,11 +90,11 @@ function initialise () {
 }
 
 function startPyodide() {
-  importScripts('https://cdn.jsdelivr.net/pyodide/v0.21.2/full/pyodide.js')
+  importScripts('https://cdn.jsdelivr.net/pyodide/v0.22.1/full/pyodide.js')
 
   console.log('[ProcessingWorker] loading Pyodide')
   return loadPyodide({
-    indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.21.2/full/'
+    indexURL: 'https://cdn.jsdelivr.net/pyodide/v0.22.1/full/'
   })  
 }
 
