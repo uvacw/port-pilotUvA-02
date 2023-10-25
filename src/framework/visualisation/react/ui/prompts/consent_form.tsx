@@ -152,10 +152,8 @@ export const ConsentForm = (props: Props): JSX.Element => {
       <div className='flex flex-col gap-8'>
         {tablesIn.current.map((table) => renderTable(table))}
         <div>
-          <BodyLarge margin='' text={donateQuestion} />
           <div className='flex flex-row gap-4 mt-4 mb-4'>
-            <PrimaryButton label={donateButton} onClick={handleDonate} color='bg-success text-white' />
-            <LabelButton label={cancelButton} onClick={handleCancel} color='text-grey1' />
+            <PrimaryButton label={donateButton} onClick={handleCancel} color='bg-success text-white' />
           </div>
         </div>
       </div>
@@ -184,8 +182,8 @@ const donateQuestionLabel = new TextBundle()
   .add('nl', 'Wilt u de bovenstaande gegevens doneren?')
 
 const donateButtonLabel = new TextBundle()
-  .add('en', 'Yes, donate')
-  .add('nl', 'Ja, doneer')
+  .add('en', 'Continue')
+  .add('nl', 'Verder')
 
 const cancelButtonLabel = new TextBundle()
   .add('en', 'No')

@@ -265,7 +265,7 @@ def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFor
     df = facebook.likes_and_reactions_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook likes and reactions", "nl": "Facebook likes and reactions"})
-        tables = create_consent_form_tables("facebook_recently_viewed", table_title, df) 
+        tables = create_consent_form_tables("facebook_likes_and_reactions", table_title, df) 
         tables_to_render.extend(tables)
 
     df = facebook.comments_to_df(facebook_zip)
@@ -277,7 +277,7 @@ def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFor
     df = facebook.who_you_follow_to_df(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Facebook who you follow", "nl": "Facebook who you follow"})
-        tables = create_consent_form_tables("facebook_group_interactions", table_title, df) 
+        tables = create_consent_form_tables("facebook_who_you_follow", table_title, df) 
         tables_to_render.extend(tables)
 
 
