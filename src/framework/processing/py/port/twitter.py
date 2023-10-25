@@ -364,7 +364,7 @@ def replies_to_df(twitter_zip: str) ->pd.DataFrame:
             .groupby("Screen name")\
             .size()\
             .reset_index(name="Number of replies")\
-            .sort_values("Number of replies")\
+            .sort_values("Number of replies", ascending=False)\
             .reset_index(drop=True)
 
 

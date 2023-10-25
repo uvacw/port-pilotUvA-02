@@ -52,16 +52,31 @@ function unwrap (response) {
   })
 }
 
+function getRandomInt(max) {
+  return Math.floor(Math.random() * (max + 1));
+}
+
 function copyFileToPyFS(file, resolve) {
-  self.pyodide.FS.mkdir('/file-input')
-  self.pyodide.FS.mount(
-    self.pyodide.FS.filesystems.WORKERFS,
-    {
-      files: [file]
-    },
-    '/file-input'
-  )
-  resolve({ __type__: 'PayloadString', value: '/file-input/' + file.name })
+  directory = `/file-input${getRandomInt(1000000)}`
+  try {
+    self.pyodide.FS.mkdir(directory)
+  } catch (error) {
+    console.log("MKDIR ERROR")
+    throw error
+  }
+  try {
+    self.pyodide.FS.mount(
+      self.pyodide.FS.filesystems.WORKERFS,
+      {
+        files: [file]
+      },
+      directory
+    )
+  } catch(error) {
+    console.log("MY ERROR")
+    console.log(error)
+  }
+  resolve({ __type__: 'PayloadString', value: directory + "/" + file.name })
 }
 
 //function copyFileToPyFS (file, resolve) {

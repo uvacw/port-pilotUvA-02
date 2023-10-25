@@ -17,7 +17,7 @@ LOG_STREAM = io.StringIO()
 
 logging.basicConfig(
     #stream=LOG_STREAM,
-    level=logging.DEBUG,
+    level=logging.ERROR,
     format="%(asctime)s --- %(name)s --- %(levelname)s --- %(message)s",
     datefmt="%Y-%m-%dT%H:%M:%S%z",
 )
@@ -108,6 +108,7 @@ def process(session_id):
             else:
                 LOGGER.info("Skipped ater reviewing consent: %s", platform_name)
                 yield donate_logs(f"{session_id}-tracking")
+        print("CHECK")
 
     yield render_end_page()
 
@@ -279,57 +280,13 @@ def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFor
         table_title = props.Translatable({"en": "Facebook who you follow", "nl": "Facebook who you follow"})
         tables = create_consent_form_tables("facebook_who_you_follow", table_title, df) 
         tables_to_render.extend(tables)
-
-
-    #df = facebook.likes_and_reactions_to_df(facebook_zip)
-    #if not df.empty:
-    #    table_title = props.Translatable({"en": "Facebook likes and reactions", "nl": "Facebook likes and reactions"})
-    #    tables = create_consent_form_tables("facebook_likes_and_reactions", table_title, df) 
-    #    tables_to_render.extend(tables)
-
-    #df = facebook.your_badges_to_df(facebook_zip)
-    #if not df.empty:
-    #    table_title = props.Translatable({"en": "Facebook your badges", "nl": "Facebook your badges"})
-    #    tables = create_consent_form_tables("facebook_your_badges", table_title, df) 
-    #    tables_to_render.extend(tables)
-
-    #df = facebook.your_posts_to_df(facebook_zip)
-    #if not df.empty:
-    #    table_title = props.Translatable({"en": "Facebook your posts", "nl": "Facebook your posts"})
-    #    tables = create_consent_form_tables("facebook_your_posts", table_title, df) 
-    #    tables_to_render.extend(tables)
-
-    #df = facebook.your_search_history_to_df(facebook_zip)
-    #if not df.empty:
-    #    table_title = props.Translatable({"en": "Facebook your searh history", "nl": "Facebook your search history"})
-    #    tables = create_consent_form_tables("facebook_your_search_history", table_title, df) 
-    #    tables_to_render.extend(tables)
-
-
-    #df = facebook.recently_visited_to_df(facebook_zip)
-    #if not df.empty:
-    #    table_title = props.Translatable({"en": "Facebook recently visited", "nl": "Facebook recently visited"})
-    #    tables = create_consent_form_tables("facebook_recently_visited", table_title, df) 
-    #    tables_to_render.extend(tables)
-
-    #df = facebook.feed_to_df(facebook_zip)
-    #if not df.empty:
-    #    table_title = props.Translatable({"en": "Facebook feed", "nl": "Facebook feed"})
-    #    tables = create_consent_form_tables("facebook_feed", table_title, df) 
-    #    tables_to_render.extend(tables)
-
-    #df = facebook.controls_to_df(facebook_zip)
-    #if not df.empty:
-    #    table_title = props.Translatable({"en": "Facebook controls", "nl": "Facebook controls"})
-    #    tables = create_consent_form_tables("facebook_controls", table_title, df) 
-    #    tables_to_render.extend(tables)
-
-    #df = facebook.group_posts_and_comments_to_df(facebook_zip)
-    #if not df.empty:
-    #    table_title = props.Translatable({"en": "Facebook group posts and comments", "nl": "Facebook group posts and comments"})
-    #    tables = create_consent_form_tables("facebook_group_posts_and_comments", table_title, df) 
-    #    tables_to_render.extend(tables)
         
+    df = facebook.your_saved_items(facebook_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Facebook your saved items", "nl": "Facebook your saved items"})
+        tables = create_consent_form_tables("facebook_your_saved_items", table_title, df) 
+        tables_to_render.extend(tables)
+
     return tables_to_render
 
 
@@ -382,13 +339,13 @@ def extract_instagram(instagram_zip: str, _) -> list[props.PropsUIPromptConsentF
     df = instagram.saved_posts_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram saved posts", "nl": "Instagram saved posts"})
-        tables = create_consent_form_tables("instagram_liked_comments", table_title, df) 
+        tables = create_consent_form_tables("instagram_saved_posts", table_title, df) 
         tables_to_render.extend(tables)
 
     df = instagram.following_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Instagram following", "nl": "Instagram following"})
-        tables = create_consent_form_tables("instagram_liked_comments", table_title, df) 
+        tables = create_consent_form_tables("instagram_following", table_title, df) 
         tables_to_render.extend(tables)
 
     return tables_to_render

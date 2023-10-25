@@ -465,7 +465,7 @@ def likes_and_reactions_to_df(instagram_zip: str) -> pd.DataFrame:
                 author = ''
 
             datapoints.append((
-                author,
+                helpers.fix_latin1_string(author),
                 helpers.epoch_to_iso(find_items(denested_dict, "timestamp")),
                 find_items(denested_dict, "reaction"),
             ))
@@ -534,12 +534,15 @@ def who_you_follow_to_df(instagram_zip: str) -> pd.DataFrame:
 
     b = unzipddp.extract_file_from_zip(instagram_zip, "who_you_follow.json")
     d = unzipddp.read_json_from_bytes(b)
+    if not d:
+        b = unzipddp.extract_file_from_zip(instagram_zip, "who_you've_followed.json")
+        d = unzipddp.read_json_from_bytes(b)
 
     out = pd.DataFrame()
     datapoints = []
 
     try:
-        l = d["following_v2"]
+        l = next(iter(d.values()))
         for item in l:
             datapoints.append((
                item.get("name", "") 
@@ -548,10 +551,47 @@ def who_you_follow_to_df(instagram_zip: str) -> pd.DataFrame:
         out = pd.DataFrame(datapoints, columns=["Who you follow"])
 
     except Exception as e:
-        logger.error("LIKES AND REACTIONS ERROR caught: %s", e)
+        logger.error("WHO YOU FOLLOW ERROR caught: %s", e)
 
     return out
 
 
 
+def your_saved_items(instagram_zip: str) -> pd.DataFrame:
 
+    b = unzipddp.extract_file_from_zip(instagram_zip, "your_saved_items.json")
+    d = unzipddp.read_json_from_bytes(b)
+
+    out = pd.DataFrame()
+    datapoints = []
+
+    try:
+        l = next(iter(d.values()))
+        for item in l:
+            denested_dict = helpers.dict_denester(item)
+            
+            # Extract author from title
+            title = find_items(denested_dict, "title")
+            pattern = rf".+ saved (a video from )?(?P<author>.+)'s .+\."
+            match = re.search(pattern, title)
+            if match:
+                author = match.group('author')
+            else:
+                author = find_items(denested_dict, "url")
+
+            datapoints.append((
+                author,
+                helpers.epoch_to_iso(find_items(denested_dict, "timestamp")),
+            ))
+
+        df = pd.DataFrame(datapoints, columns=["Author", "Date"])
+
+        if not df.empty:
+            out = df.groupby('Author')['Date'].agg(['count', 'min', 'max']).reset_index()
+            out.columns = ["Author", "Number of saves", "Earliest save", "Latest save"]
+            out = out.sort_values(by="Number of saves", ascending=False)
+
+    except Exception as e:
+        logger.error("LIKES AND REACTIONS ERROR caught: %s", e)
+
+    return out
