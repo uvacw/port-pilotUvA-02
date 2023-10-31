@@ -1,5 +1,6 @@
 declare function runCycle(payload: any): void;
 declare function unwrap(response: any): Promise<any>;
+declare function getRandomInt(max: any): number;
 declare function copyFileToPyFS(file: any, resolve: any): void;
 declare function initialise(): any;
 declare function startPyodide(): any;

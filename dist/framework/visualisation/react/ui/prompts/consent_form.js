@@ -12,7 +12,7 @@ var __assign = (this && this.__assign) || function () {
 import { jsx as _jsx, jsxs as _jsxs, Fragment as _Fragment } from "react/jsx-runtime";
 import { assert } from '../../../../helpers';
 import { Table } from '../elements/table';
-import { LabelButton, PrimaryButton } from '../elements/button';
+import { PrimaryButton } from '../elements/button';
 import { BodyLarge, Title4 } from '../elements/text';
 import TextBundle from '../../../../text_bundle';
 import { Translator } from '../../../../translator';
@@ -132,7 +132,7 @@ export var ConsentForm = function (props) {
         var values = row.cells.map(function (cell) { return cell.text; });
         return _.fromPairs(_.zip(keys, values));
     }
-    return (_jsxs(_Fragment, { children: [_jsx(BodyLarge, { text: description }), _jsxs("div", __assign({ className: 'flex flex-col gap-8' }, { children: [tablesIn.current.map(function (table) { return renderTable(table); }), _jsxs("div", { children: [_jsx(BodyLarge, { margin: '', text: donateQuestion }), _jsxs("div", __assign({ className: 'flex flex-row gap-4 mt-4 mb-4' }, { children: [_jsx(PrimaryButton, { label: donateButton, onClick: handleDonate, color: 'bg-success text-white' }), _jsx(LabelButton, { label: cancelButton, onClick: handleCancel, color: 'text-grey1' })] }))] })] }))] }));
+    return (_jsxs(_Fragment, { children: [_jsx(BodyLarge, { text: description }), _jsxs("div", __assign({ className: 'flex flex-col gap-8' }, { children: [tablesIn.current.map(function (table) { return renderTable(table); }), _jsx("div", { children: _jsx("div", __assign({ className: 'flex flex-row gap-4 mt-4 mb-4' }, { children: _jsx(PrimaryButton, { label: donateButton, onClick: handleCancel, color: 'bg-success text-white' }) })) })] }))] }));
 };
 function prepareCopy(_a) {
     var locale = _a.locale;
@@ -147,11 +147,11 @@ var donateQuestionLabel = new TextBundle()
     .add('en', 'Do you want to donate the above data?')
     .add('nl', 'Wilt u de bovenstaande gegevens doneren?');
 var donateButtonLabel = new TextBundle()
-    .add('en', 'Yes, donate')
-    .add('nl', 'Ja, doneer');
+    .add('en', 'Continue')
+    .add('nl', 'Verder');
 var cancelButtonLabel = new TextBundle()
     .add('en', 'No')
     .add('nl', 'Nee');
 var description = new TextBundle()
-    .add('en', 'Please review the data below and confirm whether you would like to donate it. Carefully check the data and adjust when required. The research project is only interested in organizations. Therefore, we recommend you to: (1) Click on adjust; (2) Select all content that is not related to organizations (e.g., companies, public institutions, governments etc.); (3) Click on delete. By doing this, you are removing content from others who may not be relevant for this study. Your donation will help us understand how individuals react to posts disseminated by organizations, i.e., whether they like posts, share them, or comment on them. Thank you in advance!')
-    .add('nl', 'Controleer de onderstaande gegevens en bevestig of u deze wilt doneren. Controleer de gegevens zorgvuldig en pas ze indien nodig aan. Het onderzoeksproject is alleen geïnteresseerd in organisaties. Daarom raden we u aan om: (1) Klik op aanpassen; (2) Selecteer alle inhoud die niet gerelateerd is aan organisaties (bijvoorbeeld bedrijven, openbare instellingen, overheden enz.); (3) Klik op verwijderen. Door dit te doen, verwijdert u inhoud van anderen die mogelijk niet relevant zijn voor dit onderzoek. Uw donatie helpt ons te begrijpen hoe individuen reageren op berichten die door organisaties worden verspreid, d.w.z. of ze berichten leuk vinden, delen of erop reageren. Alvast bedankt!');
+    .add('en', '')
+    .add('nl', '');

@@ -16,8 +16,8 @@ from port.api.commands import (CommandSystemDonate, CommandUIRender)
 LOG_STREAM = io.StringIO()
 
 logging.basicConfig(
-    #stream=LOG_STREAM,
-    level=logging.ERROR,
+    stream=LOG_STREAM,
+    level=logging.INFO,
     format="%(asctime)s --- %(name)s --- %(levelname)s --- %(message)s",
     datefmt="%Y-%m-%dT%H:%M:%S%z",
 )
@@ -221,31 +221,31 @@ def extract_twitter(twitter_zip: str, _) -> list[props.PropsUIPromptConsentFormT
 
     df = twitter.like_to_df(twitter_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Twitter likes", "nl": "Twitter likes"})
+        table_title = props.Translatable({"en": "Your likes according to Twitter", "nl": "Jouw likes volgens twitter"})
         tables = create_consent_form_tables("twitter_like", table_title, df) 
         tables_to_render.extend(tables)
 
     df = twitter.following_to_df(twitter_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Twitter following", "nl": "Twitter following"})
+        table_title =  props.Translatable( { "en": "Accounts you follow according to Twitter:", "nl": "Profielen door jou gevold volgens Twitter:" })
         tables = create_consent_form_tables("twitter_following", table_title, df) 
         tables_to_render.extend(tables)
 
     df = twitter.ad_engagements_to_df(twitter_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Twitter ad engagements", "nl": "Twitter ad engagements"})
+        table_title = props.Translatable({ "en": "Your activities with ads according to Twitter:", "nl": "Jouw activiteiten met ads volgens Twitter:"})
         tables = create_consent_form_tables("twitter_ad_engagements", table_title, df) 
         tables_to_render.extend(tables)
 
     df = twitter.replies_to_df(twitter_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Twitter replies", "nl": "Twitter replies"})
+        table_title = props.Translatable( { "en": "Accounts you reply on your tweets:", "nl": "Accounts you reply on your tweets:", })
         tables = create_consent_form_tables("twitter_replies", table_title, df) 
         tables_to_render.extend(tables)
 
     df = twitter.mentions_to_df(twitter_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Twitter mentions", "nl": "Twitter mentions"})
+        table_title = props.Translatable({ "en": "Accounts you mention on your tweets:", "nl": "Accounts you mention on your tweets:", })
         tables = create_consent_form_tables("twitter_mentions", table_title, df) 
         tables_to_render.extend(tables)
 
@@ -259,31 +259,31 @@ def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFor
 
     df = facebook.recently_viewed_to_df(facebook_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Facebook recently viewed", "nl": "Facebook recently viewed"})
+        table_title = props.Translatable({"en": "Items recently viewd on Facebook", "nl": "Items recently viewd on Facebook"})
         tables = create_consent_form_tables("facebook_recently_viewed", table_title, df) 
         tables_to_render.extend(tables)
 
     df = facebook.likes_and_reactions_to_df(facebook_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Facebook likes and reactions", "nl": "Facebook likes and reactions"})
+        table_title = props.Translatable({"en": "Your likes and reactions on Facebook", "nl": "Your likes and reactions on Facebook"})
         tables = create_consent_form_tables("facebook_likes_and_reactions", table_title, df) 
         tables_to_render.extend(tables)
 
     df = facebook.comments_to_df(facebook_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Facebook comments", "nl": "Facebook comments"})
+        table_title = props.Translatable({"en": "Liked comments on Facebook", "nl": "Liked comments on Facebook"})
         tables = create_consent_form_tables("facebook_comments", table_title, df) 
         tables_to_render.extend(tables)
 
     df = facebook.who_you_follow_to_df(facebook_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Facebook who you follow", "nl": "Facebook who you follow"})
+        table_title = props.Translatable({"en": "Who you follow on Facebook", "nl": "Who you follow on Facebook"})
         tables = create_consent_form_tables("facebook_who_you_follow", table_title, df) 
         tables_to_render.extend(tables)
         
     df = facebook.your_saved_items(facebook_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Facebook your saved items", "nl": "Facebook your saved items"})
+        table_title = props.Translatable({"en": "Your saved items on Facebook", "nl": "Your your saved items on Facebook"})
         tables = create_consent_form_tables("facebook_your_saved_items", table_title, df) 
         tables_to_render.extend(tables)
 
@@ -296,55 +296,55 @@ def extract_instagram(instagram_zip: str, _) -> list[props.PropsUIPromptConsentF
 
     df = instagram.ads_viewed_to_df(instagram_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Instagram ads viewed", "nl": "Instagram ads viewed"})
+        table_title = props.Translatable( { "en": "Ads viewed on Instagram:", "nl": "Advertenties gezien op Instagram:", })
         tables = create_consent_form_tables("instagram_ads_viewed", table_title, df) 
         tables_to_render.extend(tables)
 
     df = instagram.posts_viewed_to_df(instagram_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Instagram posts viewed", "nl": "Instagram posts viewed"})
+        table_title = props.Translatable( { "en": "Posts viewed according to Instagram:", "nl": "Gezien posts volgens Instagram:", })
         tables = create_consent_form_tables("instagram_posts_viewed", table_title, df) 
         tables_to_render.extend(tables)
 
     df = instagram.videos_watched_to_df(instagram_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Instagram videos watched", "nl": "Instagram videos watched"})
+        table_title = props.Translatable( { "en": "Videos watched according to Instagram:", "nl": "Video's bekeken volgens Instagram", })
         tables = create_consent_form_tables("instagram_videos_watched", table_title, df) 
         tables_to_render.extend(tables)
 
     df = instagram.post_comments_to_df(instagram_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Instagram post comments", "nl": "Instagram posts post comments"})
+        table_title = props.Translatable( { "en": "Post comments on Instagram:", "nl": "Post comments op Instagram:", })
         tables = create_consent_form_tables("instagram_post_comments", table_title, df) 
         tables_to_render.extend(tables)
 
     df = instagram.reels_comments_to_df(instagram_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Instagram reels comments", "nl": "Instagram reels comments"})
+        table_title = props.Translatable( { "en": "Reels comments on Instagram:", "nl": "Reels comments op Instagram:", })
         tables = create_consent_form_tables("instagram_reels_comments", table_title, df) 
         tables_to_render.extend(tables)
 
     df = instagram.liked_posts_to_df(instagram_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Instagram liked posts", "nl": "Instagram posts liked posts"})
+        table_title = props.Translatable( { "en": "Liked posts on Instagram:", "nl": "Liked posts op Instagram:", })
         tables = create_consent_form_tables("instagram_liked_posts", table_title, df) 
         tables_to_render.extend(tables)
 
     df = instagram.story_likes_to_df(instagram_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Instagram story likes", "nl": "Instagram story likes"})
+        table_title = props.Translatable( { "en": "Liked stories on Instagram:", "nl": "Liked stories op Instagram:", })
         tables = create_consent_form_tables("instagram_liked_comments", table_title, df) 
         tables_to_render.extend(tables)
 
     df = instagram.saved_posts_to_df(instagram_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Instagram saved posts", "nl": "Instagram saved posts"})
+        table_title = props.Translatable({"en": "Saved posts on Instagram", "nl": "Saved posts on Instagram"})
         tables = create_consent_form_tables("instagram_saved_posts", table_title, df) 
         tables_to_render.extend(tables)
 
     df = instagram.following_to_df(instagram_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Instagram following", "nl": "Instagram following"})
+        table_title = props.Translatable({"en": "Following on Instagram", "nl": "Following on Instagram"})
         tables = create_consent_form_tables("instagram_following", table_title, df) 
         tables_to_render.extend(tables)
 

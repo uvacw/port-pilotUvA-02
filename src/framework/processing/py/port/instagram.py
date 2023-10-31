@@ -355,9 +355,9 @@ def reels_comments_to_df(instagram_zip: str) -> pd.DataFrame:
         if not df.empty:
             grouped = df.groupby('Media owner').agg({'Date': ['count', 'min', 'max']})
             grouped = grouped.reset_index()
-            grouped.columns = ["Media owner", "Number of views", "Earliest comment", "Latest comment"]
+            grouped.columns = ["Media owner", "Number of comments", "Earliest comment", "Latest comment"]
             out = grouped
-            out = out.sort_values(by="Number of views", ascending=False)
+            out = out.sort_values(by="Number of comments", ascending=False)
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
@@ -441,9 +441,9 @@ def liked_posts_to_df(instagram_zip: str) -> pd.DataFrame:
         if not df.empty:
             grouped = df.groupby('Author').agg({'Date': ['count', 'min', 'max']})
             grouped = grouped.reset_index()
-            grouped.columns = ["Author", "Number of views", "Earliest like", "Latest like"]
+            grouped.columns = ["Author", "Number of likes", "Earliest like", "Latest like"]
             out = grouped
-            out = out.sort_values(by="Number of views", ascending=False)
+            out = out.sort_values(by="Number of likes", ascending=False)
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
@@ -475,7 +475,7 @@ def story_likes_to_df(instagram_zip: str) -> pd.DataFrame:
             grouped = grouped.reset_index()
             grouped.columns = ["Author", "Number of likes", "Earliest like", "Latest like"]
             out = grouped
-            out = out.sort_values(by="Number of views", ascending=False)
+            out = out.sort_values(by="Number of likes", ascending=False)
 
     except Exception as e:
         logger.error("Exception caught: %s", e)
