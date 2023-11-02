@@ -316,7 +316,7 @@ def post_comments_to_df(instagram_zip: str) -> pd.DataFrame:
         if not df.empty:
             grouped = df.groupby('Media owner').agg({'Date': ['count', 'min', 'max']})
             grouped = grouped.reset_index()
-            grouped.columns = ["Media owner", "Number of comments", "Earliest comment", "Latest comment"]
+            grouped.columns = ["Account", "Number of comments", "Earliest comment", "Latest comment"]
             out = grouped
             out = out.sort_values(by="Number of comments", ascending=False)
 
@@ -355,7 +355,7 @@ def reels_comments_to_df(instagram_zip: str) -> pd.DataFrame:
         if not df.empty:
             grouped = df.groupby('Media owner').agg({'Date': ['count', 'min', 'max']})
             grouped = grouped.reset_index()
-            grouped.columns = ["Media owner", "Number of comments", "Earliest comment", "Latest comment"]
+            grouped.columns = ["Account", "Number of comments", "Earliest comment", "Latest comment"]
             out = grouped
             out = out.sort_values(by="Number of comments", ascending=False)
 

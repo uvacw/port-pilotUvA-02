@@ -221,31 +221,31 @@ def extract_twitter(twitter_zip: str, _) -> list[props.PropsUIPromptConsentFormT
 
     df = twitter.like_to_df(twitter_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Your likes according to Twitter", "nl": "Jouw likes volgens twitter"})
+        table_title = props.Translatable({"en": "Your liked Tweets:", "nl": "Your liked Tweets:"})
         tables = create_consent_form_tables("twitter_like", table_title, df) 
         tables_to_render.extend(tables)
 
-    df = twitter.following_to_df(twitter_zip)
-    if not df.empty:
-        table_title =  props.Translatable( { "en": "Accounts you follow according to Twitter:", "nl": "Profielen door jou gevold volgens Twitter:" })
-        tables = create_consent_form_tables("twitter_following", table_title, df) 
-        tables_to_render.extend(tables)
+    #df = twitter.following_to_df(twitter_zip)
+    #if not df.empty:
+    #    table_title =  props.Translatable( { "en": "Accounts you follow according to Twitter:", "nl": "Profielen door jou gevold volgens Twitter:" })
+    #    tables = create_consent_form_tables("twitter_following", table_title, df) 
+    #    tables_to_render.extend(tables)
 
     df = twitter.ad_engagements_to_df(twitter_zip)
     if not df.empty:
-        table_title = props.Translatable({ "en": "Your activities with ads according to Twitter:", "nl": "Jouw activiteiten met ads volgens Twitter:"})
+        table_title = props.Translatable({ "en": "Your engagement with ads:", "nl": "Your engagement with ads:"})
         tables = create_consent_form_tables("twitter_ad_engagements", table_title, df) 
         tables_to_render.extend(tables)
 
     df = twitter.replies_to_df(twitter_zip)
     if not df.empty:
-        table_title = props.Translatable( { "en": "Accounts you reply on your tweets:", "nl": "Accounts you reply on your tweets:", })
+        table_title = props.Translatable( { "en": "Accounts of tweets you replied to:", "nl": "Accounts of tweets you replied to:", })
         tables = create_consent_form_tables("twitter_replies", table_title, df) 
         tables_to_render.extend(tables)
 
     df = twitter.mentions_to_df(twitter_zip)
     if not df.empty:
-        table_title = props.Translatable({ "en": "Accounts you mention on your tweets:", "nl": "Accounts you mention on your tweets:", })
+        table_title = props.Translatable({ "en": "Accounts you mentioned in your Tweets", "nl": "Accounts you mentioned in your Tweets", })
         tables = create_consent_form_tables("twitter_mentions", table_title, df) 
         tables_to_render.extend(tables)
 
@@ -257,9 +257,15 @@ def extract_twitter(twitter_zip: str, _) -> list[props.PropsUIPromptConsentFormT
 def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
     tables_to_render = []
 
+    df = facebook.who_you_follow_to_df(facebook_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Who you follow on Facebook", "nl": "Who you follow on Facebook"})
+        tables = create_consent_form_tables("facebook_who_you_follow", table_title, df) 
+        tables_to_render.extend(tables)
+        
     df = facebook.recently_viewed_to_df(facebook_zip)
     if not df.empty:
-        table_title = props.Translatable({"en": "Items recently viewd on Facebook", "nl": "Items recently viewd on Facebook"})
+        table_title = props.Translatable({"en": "Recently viewed items on Facebook", "nl": "Items recently viewd on Facebook"})
         tables = create_consent_form_tables("facebook_recently_viewed", table_title, df) 
         tables_to_render.extend(tables)
 
@@ -275,12 +281,6 @@ def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFor
         tables = create_consent_form_tables("facebook_comments", table_title, df) 
         tables_to_render.extend(tables)
 
-    df = facebook.who_you_follow_to_df(facebook_zip)
-    if not df.empty:
-        table_title = props.Translatable({"en": "Who you follow on Facebook", "nl": "Who you follow on Facebook"})
-        tables = create_consent_form_tables("facebook_who_you_follow", table_title, df) 
-        tables_to_render.extend(tables)
-        
     df = facebook.your_saved_items(facebook_zip)
     if not df.empty:
         table_title = props.Translatable({"en": "Your saved items on Facebook", "nl": "Your your saved items on Facebook"})
@@ -294,6 +294,12 @@ def extract_facebook(facebook_zip: str, _) -> list[props.PropsUIPromptConsentFor
 def extract_instagram(instagram_zip: str, _) -> list[props.PropsUIPromptConsentFormTable]:
     tables_to_render = []
 
+    df = instagram.following_to_df(instagram_zip)
+    if not df.empty:
+        table_title = props.Translatable({"en": "Following on Instagram", "nl": "Following on Instagram"})
+        tables = create_consent_form_tables("instagram_following", table_title, df) 
+        tables_to_render.extend(tables)
+
     df = instagram.ads_viewed_to_df(instagram_zip)
     if not df.empty:
         table_title = props.Translatable( { "en": "Ads viewed on Instagram:", "nl": "Advertenties gezien op Instagram:", })
@@ -302,25 +308,25 @@ def extract_instagram(instagram_zip: str, _) -> list[props.PropsUIPromptConsentF
 
     df = instagram.posts_viewed_to_df(instagram_zip)
     if not df.empty:
-        table_title = props.Translatable( { "en": "Posts viewed according to Instagram:", "nl": "Gezien posts volgens Instagram:", })
+        table_title = props.Translatable( { "en": "Posts viewed on Instagram:", "nl": "Posts viewed on Instagram:", })
         tables = create_consent_form_tables("instagram_posts_viewed", table_title, df) 
         tables_to_render.extend(tables)
 
     df = instagram.videos_watched_to_df(instagram_zip)
     if not df.empty:
-        table_title = props.Translatable( { "en": "Videos watched according to Instagram:", "nl": "Video's bekeken volgens Instagram", })
+        table_title = props.Translatable( { "en": "Videos watched on Instagram:", "nl": "Video's bekeken op Instagram", })
         tables = create_consent_form_tables("instagram_videos_watched", table_title, df) 
         tables_to_render.extend(tables)
 
     df = instagram.post_comments_to_df(instagram_zip)
     if not df.empty:
-        table_title = props.Translatable( { "en": "Post comments on Instagram:", "nl": "Post comments op Instagram:", })
+        table_title = props.Translatable( { "en": "Comments on posts on Instagram:", "nl": "Post comments op Instagram:", })
         tables = create_consent_form_tables("instagram_post_comments", table_title, df) 
         tables_to_render.extend(tables)
 
     df = instagram.reels_comments_to_df(instagram_zip)
     if not df.empty:
-        table_title = props.Translatable( { "en": "Reels comments on Instagram:", "nl": "Reels comments op Instagram:", })
+        table_title = props.Translatable( { "en": "Comments on reels on Instagram:", "nl": "Reels comments op Instagram:", })
         tables = create_consent_form_tables("instagram_reels_comments", table_title, df) 
         tables_to_render.extend(tables)
 
@@ -340,12 +346,6 @@ def extract_instagram(instagram_zip: str, _) -> list[props.PropsUIPromptConsentF
     if not df.empty:
         table_title = props.Translatable({"en": "Saved posts on Instagram", "nl": "Saved posts on Instagram"})
         tables = create_consent_form_tables("instagram_saved_posts", table_title, df) 
-        tables_to_render.extend(tables)
-
-    df = instagram.following_to_df(instagram_zip)
-    if not df.empty:
-        table_title = props.Translatable({"en": "Following on Instagram", "nl": "Following on Instagram"})
-        tables = create_consent_form_tables("instagram_following", table_title, df) 
         tables_to_render.extend(tables)
 
     return tables_to_render
@@ -383,8 +383,8 @@ def retry_confirmation(platform):
 def prompt_file(extensions, platform):
     description = props.Translatable(
         {
-            "en": f"Please follow the download instructions and choose the file that you stored on your device. Click “Skip” at the right bottom, if you do not have a file from {platform}.",
-            "nl": f"Volg de download instructies en kies het bestand dat u opgeslagen heeft op uw apparaat. Als u geen {platform} bestand heeft klik dan op “Overslaan” rechts onder."
+            "en": f"Please choose the file that you stored on your device. Click “Skip” at the right bottom, if you do not have a file from {platform}.",
+            "nl": f"Please choose the file that you stored on your device. Click “Skip” at the right bottom, if you do not have a file from {platform}.",
         }
     )
     return props.PropsUIPromptFileInput(description, extensions)

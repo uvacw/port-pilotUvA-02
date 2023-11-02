@@ -277,26 +277,22 @@ def ad_engagements_to_df(twitter_zip: str) -> pd.DataFrame:
             denested_dict = helpers.dict_denester(item)
             datapoints.append((
                 find_items(denested_dict, 'advertiserInfo-advertiserName'),
-                find_items(denested_dict, 'advertiserInfo-screenName'),
-                find_items(denested_dict, 'impressionAttributes-impressionTime'),
-                find_items(denested_dict, 'promotedTweetInfo-tweetId'),
-                find_items(denested_dict, 'promotedTweetInfo-tweetText'),
-                find_items(denested_dict, 'promotedTrendInfo-trendId'),
-                find_items(denested_dict, 'promotedTrendInfo-name'),
-                find_items(denested_dict, 'promotedTrendInfo-description')
+                find_items(denested_dict, 'impressionAttributes-impressionTime')
             ))
 
-        out = pd.DataFrame(datapoints, columns=[
+        df = pd.DataFrame(datapoints, columns=[
             "Advertiser name", 
-            "Advertiser screen name",
-            "Impression time",
-            "Tweet id",
-            "Tweet text",
-            "Trend id",
-            "Trend name",
-            "Trend description"
+            "Date"
             #"Engagement attributes",
         ])
+
+        if not df.empty:
+            grouped = df.groupby('Advertiser name').agg({'Date': ['count', 'min', 'max']})
+            grouped = grouped.reset_index()
+            grouped.columns = ["Advertiser name", "Number of views", "Earliest view", "Latest view"]
+            out = grouped
+            out = out.sort_values(by="Number of views", ascending=False)
+
     except Exception as e:
         logger.error("Exception was caught: %s", e)
 

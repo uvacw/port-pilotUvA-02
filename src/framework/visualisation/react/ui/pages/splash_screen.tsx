@@ -55,23 +55,18 @@ export const SplashScreen = (props: Props): JSX.Element => {
     <>
       <div className='text-bodylarge font-body text-grey1'>
         <div className='mb-4 text-bodylarge font-body text-grey1'>
-          You are about to start the process of donating your data to research institute ASCoR at the University of Amsterdam. The data that we ask you to donate will be used for academic research to gain insight into how individuals use social media when it comes to social media posts by organizations and how they engage with them.
-        </div>
-        <div className='mb-4 text-bodylarge font-body text-grey1'>
-          We will walk you through this process step by step. During this process no data is stored or sent to ASCoR. You can delete rows from the data before donating. Data will only be donated and stored when you click the button “Yes, donate” on the page that shows your data.
+                    You are about to start visualizing your social media user data from Twitter/X, Facebook, and/or Instagram as part of a research study by ASCoR, University of Amsterdam. The visualization of your data will serve as a reference for the interview between you and the researcher. The research study seeks to gain insight into how individuals use social media when it comes to social media posts by organizations and how they engage with them.
+The interviewer and you will do the visualization process together and step by step. During this process, no data is stored or sent to ASCoR.
         </div>
         <div className='mb-6 text-bodylarge font-body text-grey1'>
-          By clicking the button “<span className='font-bodybold'>Yes, donate</span>”:
+          By participating in this study:
         </div>
         <div className='flex flex-col gap-3 mb-6'>
           <Bullet>
-            <div>you fully and voluntarily agree to donate your data for this research.</div>
+            <div>you fully and voluntarily agree to visualize your data for this research.</div>
           </Bullet>
           <Bullet>
-            <div>you are aware that when your data is used for academic publications, or made publicly available in some other form, this will be anonymous.</div>
-          </Bullet>
-          <Bullet>
-            <div>you are aware that you have the right to withdraw your permission within 7 days by contacting the project leader. You can find her contacts in the survey you have just answered.</div>
+            <div>you are aware that you have the right to withdraw your permission within 7 days by contacting the project leader and interviewer, Sarah Marschlich, s.m.marschlich@uva.nl. </div>
           </Bullet>
         </div>
         <div className='mb-10'>
